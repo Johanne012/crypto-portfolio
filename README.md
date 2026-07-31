@@ -1,30 +1,30 @@
-# محفظتي — Crypto Portfolio Tracker
+# محفظتي — Crypto Portfolio
 
-محفظة عملات رقمية عربية مجانية ومفتوحة المصدر.
+محفظة عربية مع مزامنة **Binance** و **Coinbase** عبر **Vercel Serverless Functions** (تجاوز CORS).
 
-## المميزات
-- 20+ عملة شائعة
-- أسعار حية من Binance (بدون مفاتيح API)
-- قيمة حالية + تكلفة + ربح/خسارة
-- تصدير CSV
-- حفظ محلي في المتصفح
-- واجهة عربية RTL
+## المسارات
+| Path | الوظيفة |
+|------|--------|
+| `POST /api/binance-account` | حساب Binance موقّع |
+| `POST /api/coinbase-accounts` | حسابات Coinbase موقّعة |
+| `POST /api/prices` | أسعار من Binance العامة |
 
-## التشغيل المحلي
-افتح `index.html` في المتصفح.
+المفاتيح تُرسل في جسم الطلب ولا تُخزَّن على الخادم.
 
-## النشر على Vercel
-1. ادخل [vercel.com/new](https://vercel.com/new)
-2. Import المستودع `Johanne012/crypto-portfolio`
-3. Deploy (إعدادات افتراضية كافية)
-
-أو من CLI:
+## النشر
 ```bash
 npx vercel --yes
 ```
+أو Import على https://vercel.com/new من المستودع `Johanne012/crypto-portfolio`
 
-## المستودع
-https://github.com/Johanne012/crypto-portfolio
+**مهم:** مسارات `/api` تعمل فقط بعد النشر على Vercel (لا تعمل من فتح الملف محلياً كـ file://).
 
-## تنويه
-أداة تتبع فقط — ليست نصيحة استثمارية ولا تنفذ صفقات.
+## الخيارات
+- ترتيب حسب القيمة / الربح / الاسم
+- إخفاء أرصدة &lt; $1
+- إخفاء المستقرات
+- فترة التحديث التلقائي
+- مزامنة المنصتين معاً
+
+## أمان
+استخدم مفاتيح قراءة فقط. لا ترفع الأسرار إلى Git.

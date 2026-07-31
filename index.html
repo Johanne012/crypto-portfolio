@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>محفظتي — تتبع عملات رقمية</title>
-<meta name="description" content="محفظة عملات: يدوي + Binance API + Coinbase API" />
+<meta name="description" content="محفظة عملات مع Binance و Coinbase عبر Vercel API" />
 <meta name="theme-color" content="#0b1220" />
 <style>
 :root {
@@ -17,7 +17,7 @@ body {
   margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
   background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
 }
-.wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
 header { text-align: center; margin-bottom: 1.25rem; }
 h1 { font-size: 1.65rem; margin: 0 0 .35rem; }
 .sub { color: var(--muted); font-size: .95rem; margin: 0; }
@@ -33,12 +33,12 @@ h1 { font-size: 1.65rem; margin: 0 0 .35rem; }
 .pos { color: var(--green); } .neg { color: var(--red); }
 .tabs { display: flex; gap: .4rem; margin-bottom: 1rem; flex-wrap: wrap; }
 .tab {
-  flex: 1; min-width: 100px; text-align: center; padding: .55rem .4rem; border-radius: .65rem;
+  flex: 1; min-width: 90px; text-align: center; padding: .55rem .4rem; border-radius: .65rem;
   border: 1px solid var(--border); background: transparent; color: var(--muted);
   cursor: pointer; font-weight: 600; font-size: .85rem;
 }
 .tab.active { background: #0f172a; color: var(--accent); border-color: var(--accent); }
-form.add, .api-box { display: grid; gap: .6rem; margin-bottom: 1.25rem; }
+form.add, .api-box, .opts { display: grid; gap: .6rem; margin-bottom: 1rem; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
 label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .25rem; }
 input, select {
@@ -63,6 +63,8 @@ button {
   background: #1c1917; border: 1px solid #78350f; color: var(--warn);
   border-radius: .75rem; padding: .75rem; font-size: .8rem;
 }
+.check { display: flex; align-items: center; gap: .5rem; font-size: .9rem; color: var(--muted); }
+.check input { width: auto; }
 .list { display: flex; flex-direction: column; gap: .65rem; }
 .item {
   background: var(--card); border: 1px solid var(--border); border-radius: .9rem;
@@ -97,28 +99,20 @@ footer a { color: var(--accent2); }
 <div class="wrap">
   <header>
     <h1>محفظتي</h1>
-    <p class="sub">يدوي · Binance · Coinbase — أسعار حية</p>
+    <p class="sub">يدوي · Binance · Coinbase — عبر Vercel API (بدون CORS)</p>
   </header>
 
   <div class="summary">
-    <div class="card">
-      <div class="label">القيمة الحالية</div>
-      <div class="value" id="totalValue">$0.00</div>
-    </div>
-    <div class="card">
-      <div class="label">التكلفة</div>
-      <div class="value" id="totalCost">$0.00</div>
-    </div>
-    <div class="card">
-      <div class="label">الربح / الخسارة</div>
-      <div class="value" id="totalPnl">$0.00</div>
-    </div>
+    <div class="card"><div class="label">القيمة الحالية</div><div class="value" id="totalValue">$0.00</div></div>
+    <div class="card"><div class="label">التكلفة</div><div class="value" id="totalCost">$0.00</div></div>
+    <div class="card"><div class="label">الربح / الخسارة</div><div class="value" id="totalPnl">$0.00</div></div>
   </div>
 
   <div class="tabs">
     <button type="button" class="tab active" data-tab="manual">يدوي</button>
     <button type="button" class="tab" data-tab="binance">Binance</button>
     <button type="button" class="tab" data-tab="coinbase">Coinbase</button>
+    <button type="button" class="tab" data-tab="options">خيارات</button>
   </div>
 
   <form class="add card" id="addForm">
@@ -172,17 +166,9 @@ footer a { color: var(--accent2); }
   </form>
 
   <div class="api-box card" id="binanceBox" hidden>
-    <div class="warn">
-      <strong>Binance:</strong> مفتاح قراءة فقط. يُحفظ في متصفحك فقط.
-    </div>
-    <div>
-      <label for="bnKey">API Key</label>
-      <input id="bnKey" type="password" autocomplete="off" />
-    </div>
-    <div>
-      <label for="bnSecret">API Secret</label>
-      <input id="bnSecret" type="password" autocomplete="off" />
-    </div>
+    <div class="warn">Binance Read-only · الطلب يمر عبر <code>/api/binance-account</code> على Vercel</div>
+    <div><label>API Key</label><input id="bnKey" type="password" autocomplete="off" /></div>
+    <div><label>API Secret</label><input id="bnSecret" type="password" autocomplete="off" /></div>
     <div class="row">
       <button type="button" class="btn-primary" id="bnSave">حفظ</button>
       <button type="button" class="btn-ghost" id="bnClear" style="width:100%">مسح</button>
@@ -192,22 +178,10 @@ footer a { color: var(--accent2); }
   </div>
 
   <div class="api-box card" id="coinbaseBox" hidden>
-    <div class="warn">
-      <strong>Coinbase Advanced Trade:</strong> Key + Secret + Passphrase · صلاحية View فقط.
-      المفاتيح محلية في المتصفح. قد يمنع المتصفح الطلبات بسبب CORS — عندها يلزم وكيل/خادم لاحقاً.
-    </div>
-    <div>
-      <label for="cbKey">API Key</label>
-      <input id="cbKey" type="password" autocomplete="off" />
-    </div>
-    <div>
-      <label for="cbSecret">API Secret (Base64)</label>
-      <input id="cbSecret" type="password" autocomplete="off" />
-    </div>
-    <div>
-      <label for="cbPass">Passphrase</label>
-      <input id="cbPass" type="password" autocomplete="off" />
-    </div>
+    <div class="warn">Coinbase View · عبر <code>/api/coinbase-accounts</code> (تجاوز CORS)</div>
+    <div><label>API Key</label><input id="cbKey" type="password" autocomplete="off" /></div>
+    <div><label>API Secret</label><input id="cbSecret" type="password" autocomplete="off" /></div>
+    <div><label>Passphrase</label><input id="cbPass" type="password" autocomplete="off" /></div>
     <div class="row">
       <button type="button" class="btn-primary" id="cbSave">حفظ</button>
       <button type="button" class="btn-ghost" id="cbClear" style="width:100%">مسح</button>
@@ -216,23 +190,38 @@ footer a { color: var(--accent2); }
     <div class="api-status" id="cbStatus">غير مربوط</div>
   </div>
 
+  <div class="opts card" id="optionsBox" hidden>
+    <label>ترتيب العرض</label>
+    <select id="sortBy">
+      <option value="value">حسب القيمة</option>
+      <option value="pnl">حسب الربح/الخسارة</option>
+      <option value="name">حسب الاسم</option>
+      <option value="added">حسب الإضافة</option>
+    </select>
+    <label class="check"><input type="checkbox" id="hideSmall" /> إخفاء الأرصدة أقل من $1</label>
+    <label class="check"><input type="checkbox" id="hideStable" /> إخفاء المستقرات (USDT/USDC/USD)</label>
+    <label>تحديث تلقائي (ثوانٍ) — 0 للإيقاف</label>
+    <input id="refreshSec" type="number" min="0" max="600" value="60" />
+    <button type="button" class="btn-primary" id="saveOpts">حفظ الخيارات</button>
+    <button type="button" class="btn-ghost" id="syncAll" style="width:100%">مزامنة Binance + Coinbase معاً</button>
+    <div class="api-status" id="optStatus"></div>
+  </div>
+
   <div class="toolbar">
     <strong>الأصول <span id="count"></span></strong>
     <div>
       <span class="status" id="status">—</span>
-      <button type="button" class="btn-ghost" id="refreshBtn">تحديث الأسعار</button>
-      <button type="button" class="btn-ghost" id="exportBtn">تصدير CSV</button>
+      <button type="button" class="btn-ghost" id="refreshBtn">تحديث</button>
+      <button type="button" class="btn-ghost" id="exportBtn">CSV</button>
       <button type="button" class="btn-ghost btn-danger" id="clearBtn">مسح الكل</button>
     </div>
   </div>
 
   <div class="list" id="list"></div>
   <div class="empty" id="empty" hidden>لا توجد أصول بعد.</div>
-
-  <p class="disclaimer">أداة تتبع فقط — ليست نصيحة استثمارية ولا تنفّذ صفقات.</p>
+  <p class="disclaimer">تتبع فقط — ليست نصيحة استثمارية. انشر على Vercel لتفعيل مسارات /api.</p>
   <footer>
-    <p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">GitHub</a>
-    · <a href="API_SETUP.md" target="_blank" rel="noopener">دليل API</a></p>
+    <p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">GitHub</a></p>
   </footer>
 </div>
 
@@ -240,8 +229,7 @@ footer a { color: var(--accent2); }
 const STORAGE_KEY = "crypto_portfolio_v1";
 const BN_STORAGE = "crypto_portfolio_binance_api";
 const CB_STORAGE = "crypto_portfolio_coinbase_api";
-const BINANCE = "https://api.binance.com";
-const COINBASE = "https://api.coinbase.com";
+const OPTS_STORAGE = "crypto_portfolio_opts";
 
 const listEl = document.getElementById("list");
 const emptyEl = document.getElementById("empty");
@@ -253,6 +241,10 @@ const countEl = document.getElementById("count");
 const form = document.getElementById("addForm");
 const binanceBox = document.getElementById("binanceBox");
 const coinbaseBox = document.getElementById("coinbaseBox");
+const optionsBox = document.getElementById("optionsBox");
+
+let refreshTimer = null;
+let lastPrices = {};
 
 function load() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
@@ -260,6 +252,9 @@ function load() {
 }
 function save(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function loadJSON(k) {
+  try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; }
+}
 function fmt(n) {
   if (n == null || Number.isNaN(n)) return "—";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
@@ -271,92 +266,43 @@ function fmtPct(n) {
 function escapeHtml(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
-function loadJSON(k) {
-  try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; }
-}
-
 function sourceLabel(s) {
   if (s === "binance") return " · Binance";
   if (s === "coinbase") return " · Coinbase";
   return "";
 }
 
-async function hmacSha256Hex(secret, message) {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
-  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, "0")).join("");
+function defaultOpts() {
+  return { sortBy: "value", hideSmall: false, hideStable: false, refreshSec: 60 };
 }
-
-function b64ToBytes(b64) {
-  const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return bytes;
+function loadOpts() {
+  return { ...defaultOpts(), ...(loadJSON(OPTS_STORAGE) || {}) };
 }
-
-function bytesToB64(bytes) {
-  let s = "";
-  bytes.forEach((b) => { s += String.fromCharCode(b); });
-  return btoa(s);
-}
-
-async function hmacSha256B64FromB64Secret(secretB64, message) {
-  const enc = new TextEncoder();
-  let keyData;
-  try { keyData = b64ToBytes(secretB64); }
-  catch { keyData = enc.encode(secretB64); }
-  const key = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
-  return bytesToB64(new Uint8Array(sig));
-}
-
-async function binanceSignedGet(path, params, key, secret) {
-  const timestamp = Date.now();
-  const qs = new URLSearchParams({ ...params, timestamp: String(timestamp), recvWindow: "60000" }).toString();
-  const signature = await hmacSha256Hex(secret, qs);
-  const res = await fetch(BINANCE + path + "?" + qs + "&signature=" + signature, {
-    headers: { "X-MBX-APIKEY": key }
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.msg || data.message || res.statusText || "Binance error");
-  return data;
-}
-
-async function coinbaseSignedGet(requestPath, key, secret, passphrase) {
-  const timestamp = String(Math.floor(Date.now() / 1000));
-  const message = timestamp + "GET" + requestPath;
-  const signature = await hmacSha256B64FromB64Secret(secret, message);
-  const res = await fetch(COINBASE + requestPath, {
-    headers: {
-      "CB-ACCESS-KEY": key,
-      "CB-ACCESS-SIGN": signature,
-      "CB-ACCESS-TIMESTAMP": timestamp,
-      "CB-ACCESS-PASSPHRASE": passphrase,
-      "Content-Type": "application/json"
-    }
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = (data && (data.message || data.error)) || res.statusText || "Coinbase error";
-    throw new Error(msg);
-  }
-  return data;
+function saveOptsObj(o) {
+  localStorage.setItem(OPTS_STORAGE, JSON.stringify(o));
 }
 
 async function fetchPrices(symbols) {
   if (!symbols.length) return {};
-  const unique = [...new Set(symbols)];
-  const prices = {};
-  await Promise.all(unique.map(async (sym) => {
-    const s = String(sym).toUpperCase();
-    if (["USDT", "USDC", "USD", "BUSD", "DAI"].includes(s)) {
-      prices[sym] = 1;
-      return;
+  try {
+    const r = await fetch("/api/prices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ symbols }),
+    });
+    if (r.ok) {
+      const data = await r.json();
+      if (data.prices) return data.prices;
     }
+  } catch (_) {}
+  // fallback direct Binance (may work for public ticker)
+  const prices = {};
+  const unique = [...new Set(symbols.map((s) => String(s).toUpperCase()))];
+  await Promise.all(unique.map(async (sym) => {
+    if (["USDT", "USDC", "USD", "BUSD", "DAI"].includes(sym)) { prices[sym] = 1; return; }
     try {
-      const res = await fetch(BINANCE + "/api/v3/ticker/price?symbol=" + encodeURIComponent(s + "USDT"));
-      if (!res.ok) throw new Error("fail");
+      const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=" + encodeURIComponent(sym + "USDT"));
+      if (!res.ok) throw new Error("x");
       const data = await res.json();
       prices[sym] = parseFloat(data.price);
     } catch { prices[sym] = null; }
@@ -365,9 +311,32 @@ async function fetchPrices(symbols) {
 }
 
 function render(items, prices) {
+  lastPrices = prices;
+  const opts = loadOpts();
+  let rows = items.map((item) => {
+    const price = prices[item.symbol];
+    const cost = item.amount * item.buyPrice;
+    const value = price != null ? item.amount * price : null;
+    const pnl = value != null ? value - cost : null;
+    return { item, price, cost, value, pnl };
+  });
+
+  if (opts.hideStable) {
+    rows = rows.filter((r) => !["USDT", "USDC", "USD", "BUSD", "DAI"].includes(String(r.item.symbol).toUpperCase()));
+  }
+  if (opts.hideSmall) {
+    rows = rows.filter((r) => r.value == null || r.value >= 1);
+  }
+
+  if (opts.sortBy === "value") rows.sort((a, b) => (b.value || 0) - (a.value || 0));
+  else if (opts.sortBy === "pnl") rows.sort((a, b) => (b.pnl || 0) - (a.pnl || 0));
+  else if (opts.sortBy === "name") rows.sort((a, b) => String(a.item.symbol).localeCompare(b.item.symbol));
+  else rows.sort((a, b) => (b.item.createdAt || 0) - (a.item.createdAt || 0));
+
   listEl.innerHTML = "";
-  countEl.textContent = items.length ? "(" + items.length + ")" : "";
-  if (!items.length) {
+  countEl.textContent = rows.length ? "(" + rows.length + ")" : "";
+
+  if (!rows.length) {
     emptyEl.hidden = false;
     totalValueEl.textContent = "$0.00";
     totalCostEl.textContent = "$0.00";
@@ -376,16 +345,12 @@ function render(items, prices) {
     return;
   }
   emptyEl.hidden = true;
-  let totalValue = 0, totalCost = 0;
 
-  items.forEach((item) => {
-    const price = prices[item.symbol];
-    const cost = item.amount * item.buyPrice;
-    const value = price != null ? item.amount * price : null;
-    const pnl = value != null ? value - cost : null;
-    const pnlPct = value != null && cost > 0 ? (pnl / cost) * 100 : null;
+  let totalValue = 0, totalCost = 0;
+  rows.forEach(({ item, price, cost, value, pnl }) => {
     if (value != null) totalValue += value;
     totalCost += cost;
+    const pnlPct = value != null && cost > 0 ? (pnl / cost) * 100 : null;
     const pnlClass = pnl == null ? "" : pnl >= 0 ? "pos" : "neg";
     const div = document.createElement("div");
     div.className = "item";
@@ -394,7 +359,7 @@ function render(items, prices) {
         <h3>${item.symbol}${item.note ? " · " + escapeHtml(item.note) : ""}${sourceLabel(item.source)}</h3>
         <div class="meta">
           الكمية: ${item.amount} · شراء: ${fmt(item.buyPrice)}
-          ${price != null ? " · الحالي: " + fmt(price) : " · السعر غير متاح"}
+          ${price != null ? " · الحالي: " + fmt(price) : " · —"}
         </div>
         <div class="actions">
           <button type="button" class="btn-ghost btn-danger" data-del="${item.id}">حذف</button>
@@ -423,27 +388,32 @@ function render(items, prices) {
 
 async function refresh() {
   const items = load();
-  statusEl.textContent = "جاري التحديث...";
+  statusEl.textContent = "...";
   const prices = await fetchPrices(items.map((i) => i.symbol));
   render(items, prices);
   statusEl.textContent = new Date().toLocaleTimeString("ar");
 }
 
 function mergeSource(source, synced) {
-  const keep = load().filter((x) => x.source !== source);
-  save([...keep, ...synced]);
+  save([...load().filter((x) => x.source !== source), ...synced]);
 }
 
 async function syncBinance() {
   const creds = loadJSON(BN_STORAGE);
   const el = document.getElementById("bnStatus");
   if (!creds || !creds.key || !creds.secret) {
-    el.textContent = "احفظ المفاتيح أولاً"; el.className = "api-status err"; return;
+    el.textContent = "احفظ المفاتيح أولاً"; el.className = "api-status err"; return false;
   }
-  el.textContent = "جاري المزامنة..."; el.className = "api-status";
+  el.textContent = "مزامنة عبر /api/binance-account ..."; el.className = "api-status";
   try {
-    const account = await binanceSignedGet("/api/v3/account", {}, creds.key, creds.secret);
-    const balances = (account.balances || []).filter((b) => parseFloat(b.free) + parseFloat(b.locked) > 0);
+    const r = await fetch("/api/binance-account", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: creds.key, secret: creds.secret }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Binance error");
+    const balances = (data.balances || []).filter((b) => parseFloat(b.free) + parseFloat(b.locked) > 0);
     const prices = await fetchPrices(balances.map((b) => b.asset));
     const synced = balances.map((b) => {
       const amount = parseFloat(b.free) + parseFloat(b.locked);
@@ -451,10 +421,12 @@ async function syncBinance() {
       return { id: uid(), symbol: b.asset, amount, buyPrice: px, note: "مزامنة", source: "binance", createdAt: Date.now() };
     }).filter((x) => x.amount > 0);
     mergeSource("binance", synced);
-    el.textContent = "تمت المزامنة: " + synced.length + " أصل"; el.className = "api-status ok";
+    el.textContent = "تم: " + synced.length + " أصل"; el.className = "api-status ok";
     await refresh();
+    return true;
   } catch (e) {
     el.textContent = "فشل: " + (e.message || e); el.className = "api-status err";
+    return false;
   }
 }
 
@@ -462,56 +434,55 @@ async function syncCoinbase() {
   const creds = loadJSON(CB_STORAGE);
   const el = document.getElementById("cbStatus");
   if (!creds || !creds.key || !creds.secret || !creds.passphrase) {
-    el.textContent = "احفظ Key و Secret و Passphrase"; el.className = "api-status err"; return;
+    el.textContent = "احفظ الحقول الثلاثة"; el.className = "api-status err"; return false;
   }
-  el.textContent = "جاري المزامنة..."; el.className = "api-status";
+  el.textContent = "مزامنة عبر /api/coinbase-accounts ..."; el.className = "api-status";
   try {
-    const path = "/api/v3/brokerage/accounts";
-    const data = await coinbaseSignedGet(path, creds.key, creds.secret, creds.passphrase);
-    const accounts = data.accounts || data || [];
-    const list = Array.isArray(accounts) ? accounts : [];
-    const balances = list.map((a) => {
-      const sym = (a.currency || a.available_balance && a.available_balance.currency || "").toUpperCase();
-      const avail = parseFloat((a.available_balance && a.available_balance.value) || a.available || 0);
-      const hold = parseFloat((a.hold && a.hold.value) || a.hold || 0);
+    const r = await fetch("/api/coinbase-accounts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        key: creds.key,
+        secret: creds.secret,
+        passphrase: creds.passphrase,
+      }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Coinbase error");
+    const accounts = data.accounts || [];
+    const balances = accounts.map((a) => {
+      const sym = (a.currency || (a.available_balance && a.available_balance.currency) || "").toUpperCase();
+      const avail = parseFloat((a.available_balance && a.available_balance.value) || 0);
+      const hold = parseFloat((a.hold && a.hold.value) || 0);
       return { asset: sym, amount: avail + hold };
     }).filter((b) => b.asset && b.amount > 0);
-
     const prices = await fetchPrices(balances.map((b) => b.asset));
     const synced = balances.map((b) => {
       const px = prices[b.asset] != null ? prices[b.asset] : 0;
       return { id: uid(), symbol: b.asset, amount: b.amount, buyPrice: px, note: "مزامنة", source: "coinbase", createdAt: Date.now() };
     });
     mergeSource("coinbase", synced);
-    el.textContent = "تمت المزامنة: " + synced.length + " أصل"; el.className = "api-status ok";
+    el.textContent = "تم: " + synced.length + " أصل"; el.className = "api-status ok";
     await refresh();
+    return true;
   } catch (e) {
-    let msg = e.message || String(e);
-    if (/Failed to fetch|NetworkError|CORS/i.test(msg)) {
-      msg = "المتصفح حجب الطلب (CORS). Coinbase غالباً يمنع الاستدعاء المباشر من الواجهة.";
-    }
-    el.textContent = "فشل: " + msg; el.className = "api-status err";
+    el.textContent = "فشل: " + (e.message || e); el.className = "api-status err";
+    return false;
   }
 }
 
-function updateBnStatus() {
-  const c = loadJSON(BN_STORAGE);
-  const el = document.getElementById("bnStatus");
-  if (c && c.key && c.secret) {
-    el.textContent = "مفاتيح محفوظة — جاهز"; el.className = "api-status ok";
-    document.getElementById("bnKey").value = c.key;
-    document.getElementById("bnSecret").value = c.secret;
-  } else { el.textContent = "غير مربوط"; el.className = "api-status"; }
+function applyRefreshTimer() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  const sec = Number(loadOpts().refreshSec) || 0;
+  if (sec > 0) refreshTimer = setInterval(refresh, sec * 1000);
 }
-function updateCbStatus() {
-  const c = loadJSON(CB_STORAGE);
-  const el = document.getElementById("cbStatus");
-  if (c && c.key && c.secret && c.passphrase) {
-    el.textContent = "مفاتيح محفوظة — جاهز"; el.className = "api-status ok";
-    document.getElementById("cbKey").value = c.key;
-    document.getElementById("cbSecret").value = c.secret;
-    document.getElementById("cbPass").value = c.passphrase;
-  } else { el.textContent = "غير مربوط"; el.className = "api-status"; }
+
+function fillOptsForm() {
+  const o = loadOpts();
+  document.getElementById("sortBy").value = o.sortBy;
+  document.getElementById("hideSmall").checked = !!o.hideSmall;
+  document.getElementById("hideStable").checked = !!o.hideStable;
+  document.getElementById("refreshSec").value = o.refreshSec;
 }
 
 document.querySelectorAll(".tab").forEach((tab) => {
@@ -522,6 +493,8 @@ document.querySelectorAll(".tab").forEach((tab) => {
     form.hidden = t !== "manual";
     binanceBox.hidden = t !== "binance";
     coinbaseBox.hidden = t !== "coinbase";
+    optionsBox.hidden = t !== "options";
+    if (t === "options") fillOptsForm();
   });
 });
 
@@ -544,13 +517,14 @@ document.getElementById("bnSave").onclick = () => {
   const secret = document.getElementById("bnSecret").value.trim();
   if (!key || !secret) return;
   localStorage.setItem(BN_STORAGE, JSON.stringify({ key, secret }));
-  updateBnStatus();
+  document.getElementById("bnStatus").textContent = "محفوظ";
+  document.getElementById("bnStatus").className = "api-status ok";
 };
 document.getElementById("bnClear").onclick = () => {
   localStorage.removeItem(BN_STORAGE);
   document.getElementById("bnKey").value = "";
   document.getElementById("bnSecret").value = "";
-  updateBnStatus();
+  document.getElementById("bnStatus").textContent = "غير مربوط";
 };
 document.getElementById("bnSync").onclick = syncBinance;
 
@@ -558,22 +532,42 @@ document.getElementById("cbSave").onclick = () => {
   const key = document.getElementById("cbKey").value.trim();
   const secret = document.getElementById("cbSecret").value.trim();
   const passphrase = document.getElementById("cbPass").value.trim();
-  if (!key || !secret || !passphrase) {
-    document.getElementById("cbStatus").textContent = "أدخل الحقول الثلاثة";
-    document.getElementById("cbStatus").className = "api-status err";
-    return;
-  }
+  if (!key || !secret || !passphrase) return;
   localStorage.setItem(CB_STORAGE, JSON.stringify({ key, secret, passphrase }));
-  updateCbStatus();
+  document.getElementById("cbStatus").textContent = "محفوظ";
+  document.getElementById("cbStatus").className = "api-status ok";
 };
 document.getElementById("cbClear").onclick = () => {
   localStorage.removeItem(CB_STORAGE);
   document.getElementById("cbKey").value = "";
   document.getElementById("cbSecret").value = "";
   document.getElementById("cbPass").value = "";
-  updateCbStatus();
+  document.getElementById("cbStatus").textContent = "غير مربوط";
 };
 document.getElementById("cbSync").onclick = syncCoinbase;
+
+document.getElementById("saveOpts").onclick = () => {
+  const o = {
+    sortBy: document.getElementById("sortBy").value,
+    hideSmall: document.getElementById("hideSmall").checked,
+    hideStable: document.getElementById("hideStable").checked,
+    refreshSec: Number(document.getElementById("refreshSec").value) || 0,
+  };
+  saveOptsObj(o);
+  applyRefreshTimer();
+  document.getElementById("optStatus").textContent = "تم حفظ الخيارات";
+  document.getElementById("optStatus").className = "api-status ok";
+  refresh();
+};
+
+document.getElementById("syncAll").onclick = async () => {
+  const el = document.getElementById("optStatus");
+  el.textContent = "مزامنة الكل...";
+  await syncBinance();
+  await syncCoinbase();
+  el.textContent = "انتهت مزامنة الكل";
+  el.className = "api-status ok";
+};
 
 document.getElementById("refreshBtn").onclick = refresh;
 document.getElementById("exportBtn").onclick = () => {
@@ -583,9 +577,8 @@ document.getElementById("exportBtn").onclick = () => {
   const rows = items.map((i) =>
     [i.symbol, i.amount, i.buyPrice, JSON.stringify(i.note || ""), i.source || "manual", i.createdAt].join(",")
   ).join("\n");
-  const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = URL.createObjectURL(new Blob([header + rows], { type: "text/csv;charset=utf-8" }));
   a.download = "portfolio.csv";
   a.click();
 };
@@ -593,10 +586,26 @@ document.getElementById("clearBtn").onclick = () => {
   if (load().length && confirm("مسح كل الأصول؟")) { save([]); refresh(); }
 };
 
-updateBnStatus();
-updateCbStatus();
+(function initCreds() {
+  const bn = loadJSON(BN_STORAGE);
+  if (bn) {
+    document.getElementById("bnKey").value = bn.key || "";
+    document.getElementById("bnSecret").value = bn.secret || "";
+    document.getElementById("bnStatus").textContent = "محفوظ";
+    document.getElementById("bnStatus").className = "api-status ok";
+  }
+  const cb = loadJSON(CB_STORAGE);
+  if (cb) {
+    document.getElementById("cbKey").value = cb.key || "";
+    document.getElementById("cbSecret").value = cb.secret || "";
+    document.getElementById("cbPass").value = cb.passphrase || "";
+    document.getElementById("cbStatus").textContent = "محفوظ";
+    document.getElementById("cbStatus").className = "api-status ok";
+  }
+})();
+
+applyRefreshTimer();
 refresh();
-setInterval(refresh, 60000);
 </script>
 </body>
 </html>
