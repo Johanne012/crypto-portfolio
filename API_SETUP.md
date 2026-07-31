@@ -1,38 +1,34 @@
-# تفعيل Binance API مع المحفظة
+# دليل ربط API — محفظتي
 
-## 1) إنشاء مفتاح على Binance
+## Binance
+1. API Management → Create API
+2. Enable **Reading** فقط
+3. انسخ Key + Secret
+4. تبويب Binance في المحفظة → حفظ → مزامنة
 
-1. ادخل Binance → Profile → API Management
-2. Create API → اختر نوع System generated
-3. فعّل **Enable Reading** فقط
-4. **لا تفعّل** Withdrawals أو Futures تداول إن لم تكن بحاجة
-5. قيّد بـ IP إن أمكن (أ<object)
-6. انسخ API Key و Secret مرة واحدة
+## Coinbase (Advanced Trade)
+1. Coinbase → Settings → API (أو Cloud portal حسب نوع الحساب)
+2. أنشئ مفتاحاً مع **View** فقط
+3. ستحصل على: **API Key** + **Secret** + **Passphrase**
+4. تبويب Coinbase → أدخل الثلاثة → حفظ → مزامنة
 
-## 2) في المحفظة
+المسار المستخدم: `GET /api/v3/brokerage/accounts`
 
-1. افتح التطبيق
-2. تبويب **ربط Binance API**
-3. الصق Key و Secret → **حفظ المفاتيح**
-4. اضغط **مزامنة الأرصدة من Binance**
+### توقيع Coinbase
+- Timestamp (ثوانٍ)
+- الرسالة: `timestamp + GET + /api/v3/brokerage/accounts`
+- HMAC-SHA256 بمفتاح Secret (Base64) ثم ترميز Base64 للتوقيع
+- Headers: `CB-ACCESS-KEY`, `CB-ACCESS-SIGN`, `CB-ACCESS-TIMESTAMP`, `CB-ACCESS-PASSPHRASE`
 
-المفاتيح تُحفظ في `localStorage` على جهازك فقط.
+## أمان
+- صلاحيات قراءة فقط
+- المفاتيح في `localStorage` على جهازك
+- لا ترفع المفاتيح إلى GitHub
 
-## 3) ملاحظات أمنية
-
-- استخدم Read-only دائماً
-- لا تشارك المفاتيح
-- المتصفح يرى الـ Secret (مناسب للاستخدام الشخصي فقط)
-- للإنتاج الآمن لاحقاً: خادم وسيط يوقّع الطلبات دون كشف الـ Secret
-
-## 4) أخطاء شائعة
-
-| الرسالة | السبب |
-|---------|--------|
-| Invalid API-key | مفتاح خاطئ أو محذوف |
-| Signature for this request is not valid | Secret خاطئ |
-| IP not whitelisted | قيّد API بـ IP مختلف |
-| CORS / Failed to fetch | شبكة أو حظر متصفح — جرّب متصفحاً آخر أو استضافة HTTPS |
+## قيود المتصفح (CORS)
+- **Binance:** غالباً يعمل من المتصفح
+- **Coinbase:** قد يفشل بسبب CORS من صفحة ثابتة
+  - الحل لاحقاً: دالة Vercel/Cloudflare كوسيط توقيع دون كشف Secret للعموم
 
 ## المستودع
 https://github.com/Johanne012/crypto-portfolio
