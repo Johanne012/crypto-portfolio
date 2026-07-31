@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>محفظتي — تتبع عملات رقمية</title>
 <meta name="description" content="محفظة عملات رقمية مجانية: تتبع القيمة والأرباح بأسعار حية من Binance" />
+<meta name="theme-color" content="#0b1220" />
 <style>
 :root {
   --bg: #0b1220;
@@ -20,7 +21,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
@@ -28,12 +29,12 @@ body {
 }
 .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
 header { text-align: center; margin-bottom: 1.5rem; }
-h1 { font-size: 1.6rem; margin: 0 0 .35rem; }
-.sub { color: var(--muted); font-size: .95rem; }
+h1 { font-size: 1.65rem; margin: 0 0 .35rem; letter-spacing: -0.02em; }
+.sub { color: var(--muted); font-size: .95rem; margin: 0; }
 .summary {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .75rem;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: .65rem;
   margin-bottom: 1.25rem;
 }
 .card {
@@ -42,15 +43,11 @@ h1 { font-size: 1.6rem; margin: 0 0 .35rem; }
   border-radius: 1rem;
   padding: 1rem 1.1rem;
 }
-.card .label { color: var(--muted); font-size: .8rem; }
-.card .value { font-size: 1.25rem; font-weight: 700; margin-top: .2rem; }
+.card .label { color: var(--muted); font-size: .75rem; }
+.card .value { font-size: 1.15rem; font-weight: 700; margin-top: .2rem; word-break: break-all; }
 .pos { color: var(--green); }
 .neg { color: var(--red); }
-form.add {
-  display: grid;
-  gap: .6rem;
-  margin-bottom: 1.25rem;
-}
+form.add { display: grid; gap: .6rem; margin-bottom: 1.25rem; }
 form.add .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -105,7 +102,7 @@ button {
 .item h3 { margin: 0; font-size: 1.05rem; }
 .item .meta { color: var(--muted); font-size: .85rem; }
 .item .pnl { font-weight: 700; text-align: left; direction: ltr; }
-.actions { display: flex; gap: .4rem; margin-top: .5rem; }
+.actions { display: flex; gap: .4rem; margin-top: .5rem; flex-wrap: wrap; }
 .empty {
   text-align: center;
   color: var(--muted);
@@ -121,7 +118,7 @@ button {
   gap: .5rem;
   flex-wrap: wrap;
 }
-.status { font-size: .8rem; color: var(--muted); }
+.status { font-size: .8rem; color: var(--muted); margin-left: .5rem; }
 footer {
   margin-top: 2rem;
   text-align: center;
@@ -129,7 +126,13 @@ footer {
   font-size: .8rem;
 }
 footer a { color: var(--accent2); }
-@media (max-width: 520px) {
+.disclaimer {
+  margin-top: 1rem;
+  font-size: .75rem;
+  color: var(--muted);
+  text-align: center;
+}
+@media (max-width: 560px) {
   .summary { grid-template-columns: 1fr; }
   form.add .row { grid-template-columns: 1fr; }
 }
@@ -144,8 +147,12 @@ footer a { color: var(--accent2); }
 
   <div class="summary">
     <div class="card">
-      <div class="label">إجمالي القيمة الحالية</div>
+      <div class="label">القيمة الحالية</div>
       <div class="value" id="totalValue">$0.00</div>
+    </div>
+    <div class="card">
+      <div class="label">التكلفة</div>
+      <div class="value" id="totalCost">$0.00</div>
     </div>
     <div class="card">
       <div class="label">الربح / الخسارة</div>
@@ -168,11 +175,19 @@ footer a { color: var(--accent2); }
           <option value="TON">Toncoin (TON)</option>
           <option value="TRX">TRON (TRX)</option>
           <option value="DOT">Polkadot (DOT)</option>
-          <option value="MATIC">Polygon (MATIC)</option>
+          <option value="POL">Polygon (POL)</option>
           <option value="LTC">Litecoin (LTC)</option>
           <option value="AVAX">Avalanche (AVAX)</option>
           <option value="LINK">Chainlink (LINK)</option>
           <option value="UNI">Uniswap (UNI)</option>
+          <option value="ATOM">Cosmos (ATOM)</option>
+          <option value="NEAR">NEAR</option>
+          <option value="APT">Aptos (APT)</option>
+          <option value="ARB">Arbitrum (ARB)</option>
+          <option value="OP">Optimism (OP)</option>
+          <option value="SUI">Sui (SUI)</option>
+          <option value="PEPE">PEPE</option>
+          <option value="SHIB">Shiba Inu (SHIB)</option>
         </select>
       </div>
       <div>
@@ -187,26 +202,28 @@ footer a { color: var(--accent2); }
       </div>
       <div>
         <label for="note">ملاحظة (اختياري)</label>
-        <input id="note" type="text" placeholder="محفظة باردة / Binance..." maxlength="40" />
+        <input id="note" type="text" placeholder="Binance / محفظة باردة" maxlength="40" />
       </div>
     </div>
     <button type="submit" class="btn-primary">إضافة إلى المحفظة</button>
   </form>
 
   <div class="toolbar">
-    <strong>الأصول</strong>
+    <strong>الأصول <span id="count"></span></strong>
     <div>
       <span class="status" id="status">—</span>
-      <button type="button" class="btn-ghost" id="refreshBtn">تحديث الأسعار</button>
+      <button type="button" class="btn-ghost" id="refreshBtn">تحديث</button>
+      <button type="button" class="btn-ghost" id="exportBtn">تصدير CSV</button>
+      <button type="button" class="btn-ghost btn-danger" id="clearBtn">مسح الكل</button>
     </div>
   </div>
 
   <div class="list" id="list"></div>
   <div class="empty" id="empty" hidden>لا توجد أصول بعد. أضف أول عملة أعلاه.</div>
 
+  <p class="disclaimer">أداة تتبع فقط — ليست نصيحة استثمارية ولا تنفّذ صفقات. الأسعار من واجهة Binance العامة.</p>
   <footer>
-    <p>البيانات تُحفظ محلياً في متصفحك فقط · الأسعار من Binance API العامة</p>
-    <p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">المصدر على GitHub</a></p>
+    <p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">المصدر المفتوح على GitHub</a></p>
   </footer>
 </div>
 
@@ -215,63 +232,61 @@ const STORAGE_KEY = "crypto_portfolio_v1";
 const listEl = document.getElementById("list");
 const emptyEl = document.getElementById("empty");
 const totalValueEl = document.getElementById("totalValue");
+const totalCostEl = document.getElementById("totalCost");
 const totalPnlEl = document.getElementById("totalPnl");
 const statusEl = document.getElementById("status");
+const countEl = document.getElementById("count");
 const form = document.getElementById("addForm");
 
 function load() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+  catch { return []; }
 }
-
 function save(items) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
-
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
-
 function fmt(n) {
   if (n === null || n === undefined || Number.isNaN(n)) return "—";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
 }
-
 function fmtPct(n) {
   if (n === null || Number.isNaN(n)) return "";
   const sign = n > 0 ? "+" : "";
   return sign + n.toFixed(2) + "%";
+}
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 async function fetchPrices(symbols) {
   if (!symbols.length) return {};
   const unique = [...new Set(symbols)];
   const prices = {};
-  // Binance public ticker — one request per symbol (simple & reliable)
-  await Promise.all(
-    unique.map(async (sym) => {
-      try {
-        const pair = sym + "USDT";
-        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=" + pair);
-        if (!res.ok) throw new Error("fail");
-        const data = await res.json();
-        prices[sym] = parseFloat(data.price);
-      } catch {
-        prices[sym] = null;
-      }
-    })
-  );
+  await Promise.all(unique.map(async (sym) => {
+    try {
+      const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=" + encodeURIComponent(sym + "USDT"));
+      if (!res.ok) throw new Error("fail");
+      const data = await res.json();
+      prices[sym] = parseFloat(data.price);
+    } catch {
+      prices[sym] = null;
+    }
+  }));
   return prices;
 }
 
 function render(items, prices) {
   listEl.innerHTML = "";
+  countEl.textContent = items.length ? "(" + items.length + ")" : "";
   if (!items.length) {
     emptyEl.hidden = false;
     totalValueEl.textContent = "$0.00";
+    totalCostEl.textContent = "$0.00";
     totalPnlEl.textContent = "$0.00";
     totalPnlEl.className = "value";
     return;
@@ -287,13 +302,12 @@ function render(items, prices) {
     const value = price != null ? item.amount * price : null;
     const pnl = value != null ? value - cost : null;
     const pnlPct = value != null && cost > 0 ? (pnl / cost) * 100 : null;
-
     if (value != null) totalValue += value;
     totalCost += cost;
 
+    const pnlClass = pnl == null ? "" : pnl >= 0 ? "pos" : "neg";
     const div = document.createElement("div");
     div.className = "item";
-    const pnlClass = pnl == null ? "" : pnl >= 0 ? "pos" : "neg";
     div.innerHTML = `
       <div>
         <h3>${item.symbol}${item.note ? " · " + escapeHtml(item.note) : ""}</h3>
@@ -308,32 +322,23 @@ function render(items, prices) {
       <div class="pnl ${pnlClass}">
         ${value != null ? fmt(value) : "—"}<br/>
         <span style="font-size:.85rem">${pnl != null ? fmt(pnl) + " (" + fmtPct(pnlPct) + ")" : ""}</span>
-      </div>
-    `;
+      </div>`;
     listEl.appendChild(div);
   });
 
   const totalPnl = totalValue - totalCost;
   totalValueEl.textContent = fmt(totalValue);
+  totalCostEl.textContent = fmt(totalCost);
   totalPnlEl.textContent = fmt(totalPnl) + (totalCost > 0 ? " (" + fmtPct((totalPnl / totalCost) * 100) + ")" : "");
   totalPnlEl.className = "value " + (totalPnl >= 0 ? "pos" : "neg");
 
   listEl.querySelectorAll("[data-del]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-del");
-      const next = load().filter((x) => x.id !== id);
-      save(next);
+      save(load().filter((x) => x.id !== id));
       refresh();
     });
   });
-}
-
-function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 async function refresh() {
@@ -341,7 +346,7 @@ async function refresh() {
   statusEl.textContent = "جاري التحديث...";
   const prices = await fetchPrices(items.map((i) => i.symbol));
   render(items, prices);
-  statusEl.textContent = "آخر تحديث: " + new Date().toLocaleTimeString("ar");
+  statusEl.textContent = new Date().toLocaleTimeString("ar");
 }
 
 form.addEventListener("submit", (e) => {
@@ -351,7 +356,6 @@ form.addEventListener("submit", (e) => {
   const buyPrice = parseFloat(document.getElementById("buyPrice").value);
   const note = document.getElementById("note").value.trim();
   if (!(amount > 0) || !(buyPrice >= 0)) return;
-
   const items = load();
   items.push({ id: uid(), symbol, amount, buyPrice, note, createdAt: Date.now() });
   save(items);
@@ -361,8 +365,30 @@ form.addEventListener("submit", (e) => {
 
 document.getElementById("refreshBtn").addEventListener("click", refresh);
 
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const items = load();
+  if (!items.length) return;
+  const header = "symbol,amount,buyPrice,note,createdAt\n";
+  const rows = items.map((i) =>
+    [i.symbol, i.amount, i.buyPrice, JSON.stringify(i.note || ""), i.createdAt].join(",")
+  ).join("\n");
+  const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "portfolio.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (!load().length) return;
+  if (confirm("مسح كل الأصول من هذه المحفظة؟")) {
+    save([]);
+    refresh();
+  }
+});
+
 refresh();
-// auto refresh every 60s
 setInterval(refresh, 60000);
 </script>
 </body>
