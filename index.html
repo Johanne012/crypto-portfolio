@@ -4,137 +4,92 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>محفظتي — تتبع عملات رقمية</title>
-<meta name="description" content="محفظة عملات رقمية مجانية: تتبع القيمة والأرباح بأسعار حية من Binance" />
+<meta name="description" content="محفظة عملات رقمية: تتبع يدوي أو مزامنة أرصدة Binance عبر API" />
 <meta name="theme-color" content="#0b1220" />
 <style>
 :root {
-  --bg: #0b1220;
-  --card: #121a2b;
-  --border: #1e293b;
-  --text: #e8eefc;
-  --muted: #9aa8c7;
-  --green: #34d399;
-  --red: #f87171;
-  --accent: #2dd4bf;
-  --accent2: #38bdf8;
+  --bg: #0b1220; --card: #121a2b; --border: #1e293b;
+  --text: #e8eefc; --muted: #9aa8c7; --green: #34d399;
+  --red: #f87171; --accent: #2dd4bf; --accent2: #38bdf8; --warn: #fbbf24;
 }
 * { box-sizing: border-box; }
 body {
-  margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  min-height: 100vh;
+  margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
 }
 .wrap { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
-header { text-align: center; margin-bottom: 1.5rem; }
-h1 { font-size: 1.65rem; margin: 0 0 .35rem; letter-spacing: -0.02em; }
+header { text-align: center; margin-bottom: 1.25rem; }
+h1 { font-size: 1.65rem; margin: 0 0 .35rem; }
 .sub { color: var(--muted); font-size: .95rem; margin: 0; }
 .summary {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: .65rem;
-  margin-bottom: 1.25rem;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .65rem; margin-bottom: 1rem;
 }
 .card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: 1rem 1.1rem;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 1rem; padding: 1rem 1.1rem;
 }
 .card .label { color: var(--muted); font-size: .75rem; }
-.card .value { font-size: 1.15rem; font-weight: 700; margin-top: .2rem; word-break: break-all; }
-.pos { color: var(--green); }
-.neg { color: var(--red); }
-form.add { display: grid; gap: .6rem; margin-bottom: 1.25rem; }
-form.add .row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .6rem;
+.card .value { font-size: 1.1rem; font-weight: 700; margin-top: .2rem; word-break: break-all; }
+.pos { color: var(--green); } .neg { color: var(--red); }
+.tabs { display: flex; gap: .5rem; margin-bottom: 1rem; }
+.tab {
+  flex: 1; text-align: center; padding: .6rem; border-radius: .65rem;
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  cursor: pointer; font-weight: 600;
 }
+.tab.active { background: #0f172a; color: var(--accent); border-color: var(--accent); }
+form.add, .api-box { display: grid; gap: .6rem; margin-bottom: 1.25rem; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
 label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .25rem; }
 input, select {
-  width: 100%;
-  background: #0f172a;
-  border: 1px solid var(--border);
-  border-radius: .6rem;
-  color: var(--text);
-  padding: .65rem .75rem;
-  font-size: 1rem;
+  width: 100%; background: #0f172a; border: 1px solid var(--border);
+  border-radius: .6rem; color: var(--text); padding: .65rem .75rem; font-size: 1rem;
 }
-input:focus, select:focus {
-  outline: 2px solid var(--accent);
-  border-color: transparent;
-}
+input:focus, select:focus { outline: 2px solid var(--accent); border-color: transparent; }
 button {
-  border: none;
-  border-radius: .65rem;
-  padding: .75rem 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: .95rem;
+  border: none; border-radius: .65rem; padding: .75rem 1rem;
+  font-weight: 700; cursor: pointer; font-size: .95rem;
 }
 .btn-primary {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: #042f2e;
-  width: 100%;
+  color: #042f2e; width: 100%;
 }
 .btn-ghost {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  padding: .4rem .7rem;
-  font-size: .8rem;
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+  padding: .4rem .7rem; font-size: .8rem;
 }
 .btn-danger { color: var(--red); border-color: #7f1d1d; }
+.warn {
+  background: #1c1917; border: 1px solid #78350f; color: var(--warn);
+  border-radius: .75rem; padding: .75rem; font-size: .8rem;
+}
 .list { display: flex; flex-direction: column; gap: .65rem; }
 .item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: .9rem;
-  padding: .9rem 1rem;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: .5rem;
-  align-items: start;
+  background: var(--card); border: 1px solid var(--border); border-radius: .9rem;
+  padding: .9rem 1rem; display: grid; grid-template-columns: 1fr auto; gap: .5rem;
 }
 .item h3 { margin: 0; font-size: 1.05rem; }
 .item .meta { color: var(--muted); font-size: .85rem; }
 .item .pnl { font-weight: 700; text-align: left; direction: ltr; }
 .actions { display: flex; gap: .4rem; margin-top: .5rem; flex-wrap: wrap; }
 .empty {
-  text-align: center;
-  color: var(--muted);
-  padding: 2rem 1rem;
-  border: 1px dashed var(--border);
-  border-radius: 1rem;
+  text-align: center; color: var(--muted); padding: 2rem 1rem;
+  border: 1px dashed var(--border); border-radius: 1rem;
 }
 .toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: .75rem;
-  gap: .5rem;
-  flex-wrap: wrap;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: .75rem; gap: .5rem; flex-wrap: wrap;
 }
-.status { font-size: .8rem; color: var(--muted); margin-left: .5rem; }
-footer {
-  margin-top: 2rem;
-  text-align: center;
-  color: var(--muted);
-  font-size: .8rem;
-}
+.status { font-size: .8rem; color: var(--muted); }
+.api-status { font-size: .85rem; margin-top: .25rem; }
+.ok { color: var(--green); } .err { color: var(--red); }
+footer { margin-top: 2rem; text-align: center; color: var(--muted); font-size: .8rem; }
 footer a { color: var(--accent2); }
-.disclaimer {
-  margin-top: 1rem;
-  font-size: .75rem;
-  color: var(--muted);
-  text-align: center;
-}
+.disclaimer { margin-top: 1rem; font-size: .75rem; color: var(--muted); text-align: center; }
+hidden, [hidden] { display: none !important; }
 @media (max-width: 560px) {
   .summary { grid-template-columns: 1fr; }
-  form.add .row { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -142,7 +97,7 @@ footer a { color: var(--accent2); }
 <div class="wrap">
   <header>
     <h1>محفظتي</h1>
-    <p class="sub">تتبع عملاتك الرقمية — أسعار حية من Binance · تُحفظ على جهازك فقط</p>
+    <p class="sub">تتبع يدوي أو مزامنة أرصدة Binance عبر API</p>
   </header>
 
   <div class="summary">
@@ -158,6 +113,11 @@ footer a { color: var(--accent2); }
       <div class="label">الربح / الخسارة</div>
       <div class="value" id="totalPnl">$0.00</div>
     </div>
+  </div>
+
+  <div class="tabs">
+    <button type="button" class="tab active" data-tab="manual">إضافة يدوية</button>
+    <button type="button" class="tab" data-tab="api">ربط Binance API</button>
   </div>
 
   <form class="add card" id="addForm">
@@ -188,47 +148,77 @@ footer a { color: var(--accent2); }
           <option value="SUI">Sui (SUI)</option>
           <option value="PEPE">PEPE</option>
           <option value="SHIB">Shiba Inu (SHIB)</option>
+          <option value="USDT">Tether (USDT)</option>
         </select>
       </div>
       <div>
         <label for="amount">الكمية</label>
-        <input id="amount" type="number" step="any" min="0" placeholder="مثلاً 0.05" required />
+        <input id="amount" type="number" step="any" min="0" placeholder="0.05" required />
       </div>
     </div>
     <div class="row">
       <div>
-        <label for="buyPrice">سعر الشراء (USDT)</label>
-        <input id="buyPrice" type="number" step="any" min="0" placeholder="مثلاً 42000" required />
+        <label for="buyPrice">سعر الشراء (USDT) — للتكلفة</label>
+        <input id="buyPrice" type="number" step="any" min="0" placeholder="42000" required />
       </div>
       <div>
-        <label for="note">ملاحظة (اختياري)</label>
-        <input id="note" type="text" placeholder="Binance / محفظة باردة" maxlength="40" />
+        <label for="note">ملاحظة</label>
+        <input id="note" type="text" placeholder="يدوي" maxlength="40" />
       </div>
     </div>
     <button type="submit" class="btn-primary">إضافة إلى المحفظة</button>
   </form>
 
+  <div class="api-box card" id="apiBox" hidden>
+    <div class="warn">
+      <strong>أمان:</strong> استخدم مفتاح <u>قراءة فقط (Read-only)</u> بدون صلاحية سحب أو تداول.
+      المفاتيح تُحفظ في متصفحك فقط ولا تُرفع لخوادم المشروع.
+      استخدام Secret من المتصفح يناسب الاستخدام الشخصي فقط.
+    </div>
+    <div>
+      <label for="apiKey">API Key</label>
+      <input id="apiKey" type="password" autocomplete="off" placeholder=" tail" />
+    </div>
+    <div>
+      <label for="apiSecret">API Secret</label>
+      <input id="apiSecret" type="password" autocomplete="off" placeholder="Secret" />
+    </div>
+    <div class="row">
+      <button type="button" class="btn-primary" id="saveApiBtn">حفظ المفاتيح</button>
+      <button type="button" class="btn-ghost" id="clearApiBtn" style="width:100%">مسح المفاتيح</button>
+    </div>
+    <button type="button" class="btn-primary" id="syncBtn">مزامنة الأرصدة من Binance</button>
+    <div class="api-status" id="apiStatus">غير مربوط</div>
+    <p class="disclaimer" style="text-align:right;margin:0">
+      عند المزامنة: تُستبدل الأصول ذات المصدر "binance" بالأرصدة الحرة &gt; 0.
+      الأصول اليدوية تبقى. سعر الشراء للأرصدة المزامَنة = السعر الحالي (PnL ≈ 0 حتى تعدّله).
+    </p>
+  </div>
+
   <div class="toolbar">
     <strong>الأصول <span id="count"></span></strong>
     <div>
       <span class="status" id="status">—</span>
-      <button type="button" class="btn-ghost" id="refreshBtn">تحديث</button>
+      <button type="button" class="btn-ghost" id="refreshBtn">تحديث الأسعار</button>
       <button type="button" class="btn-ghost" id="exportBtn">تصدير CSV</button>
       <button type="button" class="btn-ghost btn-danger" id="clearBtn">مسح الكل</button>
     </div>
   </div>
 
   <div class="list" id="list"></div>
-  <div class="empty" id="empty" hidden>لا توجد أصول بعد. أضف أول عملة أعلاه.</div>
+  <div class="empty" id="empty" hidden>لا توجد أصول بعد.</div>
 
-  <p class="disclaimer">أداة تتبع فقط — ليست نصيحة استثمارية ولا تنفّذ صفقات. الأسعار من واجهة Binance العامة.</p>
+  <p class="disclaimer">أداة تتبع فقط — ليست نصيحة استثمارية ولا تنفّذ صفقات.</p>
   <footer>
-    <p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">المصدر المفتوح على GitHub</a></p>
+    <p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">المصدر على GitHub</a></p>
   </footer>
 </div>
 
 <script>
 const STORAGE_KEY = "crypto_portfolio_v1";
+const API_KEY_STORAGE = "crypto_portfolio_binance_api";
+const PROXY = "https://api.binance.com";
+
 const listEl = document.getElementById("list");
 const emptyEl = document.getElementById("empty");
 const totalValueEl = document.getElementById("totalValue");
@@ -236,31 +226,71 @@ const totalCostEl = document.getElementById("totalCost");
 const totalPnlEl = document.getElementById("totalPnl");
 const statusEl = document.getElementById("status");
 const countEl = document.getElementById("count");
+const apiStatusEl = document.getElementById("apiStatus");
 const form = document.getElementById("addForm");
+const apiBox = document.getElementById("apiBox");
 
 function load() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
   catch { return []; }
 }
-function save(items) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
+function save(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 function fmt(n) {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  if (n == null || Number.isNaN(n)) return "—";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
 }
 function fmtPct(n) {
-  if (n === null || Number.isNaN(n)) return "";
-  const sign = n > 0 ? "+" : "";
-  return sign + n.toFixed(2) + "%";
+  if (n == null || Number.isNaN(n)) return "";
+  return (n > 0 ? "+" : "") + n.toFixed(2) + "%";
 }
 function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function loadApiCreds() {
+  try { return JSON.parse(localStorage.getItem(API_KEY_STORAGE) || "null"); }
+  catch { return null; }
+}
+function saveApiCreds(key, secret) {
+  localStorage.setItem(API_KEY_STORAGE, JSON.stringify({ key, secret }));
+}
+function clearApiCreds() { localStorage.removeItem(API_KEY_STORAGE); }
+
+function updateApiStatus() {
+  const c = loadApiCreds();
+  if (c && c.key && c.secret) {
+    apiStatusEl.textContent = "مفاتيح محفوظة محلياً — جاهز للمزامنة";
+    apiStatusEl.className = "api-status ok";
+    document.getElementById("apiKey").value = c.key;
+    document.getElementById("apiSecret").value = c.secret;
+  } else {
+    apiStatusEl.textContent = "غير مربوط";
+    apiStatusEl.className = "api-status";
+  }
+}
+
+async function hmacSha256(secret, message) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function binanceSignedGet(path, params, key, secret) {
+  const timestamp = Date.now();
+  const qs = new URLSearchParams({ ...params, timestamp: String(timestamp), recvWindow: "60000" }).toString();
+  const signature = await hmacSha256(secret, qs);
+  const url = PROXY + path + "?" + qs + "&signature=" + signature;
+  const res = await fetch(url, { headers: { "X-MBX-APIKEY": key } });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.msg || data.message || res.statusText || "خطأ API";
+    throw new Error(msg);
+  }
+  return data;
 }
 
 async function fetchPrices(symbols) {
@@ -268,14 +298,16 @@ async function fetchPrices(symbols) {
   const unique = [...new Set(symbols)];
   const prices = {};
   await Promise.all(unique.map(async (sym) => {
+    if (sym === "USDT" || sym === "USDC" || sym === "BUSD") {
+      prices[sym] = 1;
+      return;
+    }
     try {
-      const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=" + encodeURIComponent(sym + "USDT"));
+      const res = await fetch(PROXY + "/api/v3/ticker/price?symbol=" + encodeURIComponent(sym + "USDT"));
       if (!res.ok) throw new Error("fail");
       const data = await res.json();
       prices[sym] = parseFloat(data.price);
-    } catch {
-      prices[sym] = null;
-    }
+    } catch { prices[sym] = null; }
   }));
   return prices;
 }
@@ -292,9 +324,7 @@ function render(items, prices) {
     return;
   }
   emptyEl.hidden = true;
-
-  let totalValue = 0;
-  let totalCost = 0;
+  let totalValue = 0, totalCost = 0;
 
   items.forEach((item) => {
     const price = prices[item.symbol];
@@ -304,13 +334,13 @@ function render(items, prices) {
     const pnlPct = value != null && cost > 0 ? (pnl / cost) * 100 : null;
     if (value != null) totalValue += value;
     totalCost += cost;
-
     const pnlClass = pnl == null ? "" : pnl >= 0 ? "pos" : "neg";
+    const src = item.source === "binance" ? " · Binance" : "";
     const div = document.createElement("div");
     div.className = "item";
     div.innerHTML = `
       <div>
-        <h3>${item.symbol}${item.note ? " · " + escapeHtml(item.note) : ""}</h3>
+        <h3>${item.symbol}${item.note ? " · " + escapeHtml(item.note) : ""}${src}</h3>
         <div class="meta">
           الكمية: ${item.amount} · شراء: ${fmt(item.buyPrice)}
           ${price != null ? " · الحالي: " + fmt(price) : " · السعر غير متاح"}
@@ -333,11 +363,10 @@ function render(items, prices) {
   totalPnlEl.className = "value " + (totalPnl >= 0 ? "pos" : "neg");
 
   listEl.querySelectorAll("[data-del]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-del");
-      save(load().filter((x) => x.id !== id));
+    btn.onclick = () => {
+      save(load().filter((x) => x.id !== btn.getAttribute("data-del")));
       refresh();
-    });
+    };
   });
 }
 
@@ -349,6 +378,58 @@ async function refresh() {
   statusEl.textContent = new Date().toLocaleTimeString("ar");
 }
 
+async function syncBinance() {
+  const creds = loadApiCreds();
+  if (!creds || !creds.key || !creds.secret) {
+    apiStatusEl.textContent = "احفظ المفاتيح أولاً";
+    apiStatusEl.className = "api-status err";
+    return;
+  }
+  apiStatusEl.textContent = "جاري المزامنة...";
+  apiStatusEl.className = "api-status";
+  try {
+    const account = await binanceSignedGet("/api/v3/account", {}, creds.key, creds.secret);
+    const balances = (account.balances || []).filter((b) => parseFloat(b.free) > 0 || parseFloat(b.locked) > 0);
+    const symbols = balances.map((b) => b.asset);
+    const prices = await fetchPrices(symbols);
+
+    const manual = load().filter((x) => x.source !== "binance");
+    const synced = balances.map((b) => {
+      const amount = parseFloat(b.free) + parseFloat(b.locked);
+      const sym = b.asset;
+      const px = prices[sym] != null ? prices[sym] : (sym === "USDT" ? 1 : 0);
+      return {
+        id: uid(),
+        symbol: sym,
+        amount,
+        buyPrice: px || 0,
+        note: "مزامنة",
+        source: "binance",
+        createdAt: Date.now()
+      };
+    }).filter((x) => x.amount > 0);
+
+    save([...manual, ...synced]);
+    apiStatusEl.textContent = "تمت المزامنة: " + synced.length + " أصل";
+    apiStatusEl.className = "api-status ok";
+    await refresh();
+  } catch (e) {
+    apiStatusEl.textContent = "فشل: " + (e.message || e);
+    apiStatusEl.className = "api-status err";
+  }
+}
+
+// Tabs
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
+    const isApi = tab.dataset.tab === "api";
+    form.hidden = isApi;
+    apiBox.hidden = !isApi;
+  });
+});
+
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const symbol = document.getElementById("symbol").value;
@@ -357,37 +438,54 @@ form.addEventListener("submit", (e) => {
   const note = document.getElementById("note").value.trim();
   if (!(amount > 0) || !(buyPrice >= 0)) return;
   const items = load();
-  items.push({ id: uid(), symbol, amount, buyPrice, note, createdAt: Date.now() });
+  items.push({ id: uid(), symbol, amount, buyPrice, note, source: "manual", createdAt: Date.now() });
   save(items);
   form.reset();
   refresh();
 });
 
-document.getElementById("refreshBtn").addEventListener("click", refresh);
+document.getElementById("saveApiBtn").onclick = () => {
+  const key = document.getElementById("apiKey").value.trim();
+  const secret = document.getElementById("apiSecret").value.trim();
+  if (!key || !secret) {
+    apiStatusEl.textContent = "أدخل Key و Secret";
+    apiStatusEl.className = "api-status err";
+    return;
+  }
+  saveApiCreds(key, secret);
+  updateApiStatus();
+};
 
-document.getElementById("exportBtn").addEventListener("click", () => {
+document.getElementById("clearApiBtn").onclick = () => {
+  clearApiCreds();
+  document.getElementById("apiKey").value = "";
+  document.getElementById("apiSecret").value = "";
+  updateApiStatus();
+};
+
+document.getElementById("syncBtn").onclick = syncBinance;
+document.getElementById("refreshBtn").onclick = refresh;
+
+document.getElementById("exportBtn").onclick = () => {
   const items = load();
   if (!items.length) return;
-  const header = "symbol,amount,buyPrice,note,createdAt\n";
+  const header = "symbol,amount,buyPrice,note,source,createdAt\n";
   const rows = items.map((i) =>
-    [i.symbol, i.amount, i.buyPrice, JSON.stringify(i.note || ""), i.createdAt].join(",")
+    [i.symbol, i.amount, i.buyPrice, JSON.stringify(i.note || ""), i.source || "manual", i.createdAt].join(",")
   ).join("\n");
   const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "portfolio.csv";
   a.click();
-  URL.revokeObjectURL(a.href);
-});
+};
 
-document.getElementById("clearBtn").addEventListener("click", () => {
+document.getElementById("clearBtn").onclick = () => {
   if (!load().length) return;
-  if (confirm("مسح كل الأصول من هذه المحفظة؟")) {
-    save([]);
-    refresh();
-  }
-});
+  if (confirm("مسح كل الأصول؟")) { save([]); refresh(); }
+};
 
+updateApiStatus();
 refresh();
 setInterval(refresh, 60000);
 </script>
