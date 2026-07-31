@@ -1,0 +1,17 @@
+<!-- ONCHAIN UI SNIPPET — integrate into index -->
+<button type="button" class="tab" data-tab="onchain">سلسلة</button>
+
+<div class="api-box card" id="onchainBox" hidden>
+  <div class="warn">عنوان عام فقط · BTC عبر Blockstream · ETH عبر RPC (رصيد ETH الأصلي)</div>
+  <label>الشبكة</label>
+  <select id="ocChain">
+    <option value="BTC">Bitcoin</option>
+    <option value="ETH">Ethereum</option>
+  </select>
+  <label>العنوان</label>
+  <input id="ocAddr" type="text" placeholder="bc1... / 1... / 0x..." autocomplete="off" />
+  <label>سعر شراء مرجعي (اختياري، للتكلفة)</label>
+  <input id="ocBuy" type="number" step="any" min="0" placeholder="اتركه فارغاً = السعر الحالي" />
+  <button type="button" class="btn-primary" id="ocSync">مزامنة العنوان</button>
+  <div class="api-status" id="ocStatus">—</div>
+</div>
