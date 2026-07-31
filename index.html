@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>محفظتي — تتبع عملات رقمية</title>
-<meta name="description" content="محفظة عملات مع Binance و Coinbase عبر Vercel API" />
+<meta name="description" content="محفظة كريبتو: توزيع، تغيّر 24س، لقطات، خصوصية، تنبيهات" />
 <meta name="theme-color" content="#0b1220" />
 <style>
 :root {
@@ -15,40 +15,40 @@
 * { box-sizing: border-box; }
 body {
   margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
+  background: var(--bg); color: var(--text); line-height: 1.55; min-height: 100vh;
 }
-.wrap { max-width: 760px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
-header { text-align: center; margin-bottom: 1.25rem; }
-h1 { font-size: 1.65rem; margin: 0 0 .35rem; }
-.sub { color: var(--muted); font-size: .95rem; margin: 0; }
+body.privacy .blur-me { filter: blur(7px); user-select: none; }
+.wrap { max-width: 780px; margin: 0 auto; padding: 1.1rem 1rem 3rem; }
+header { text-align: center; margin-bottom: 1rem; }
+h1 { font-size: 1.55rem; margin: 0 0 .25rem; }
+.sub { color: var(--muted); font-size: .9rem; margin: 0; }
 .summary {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .65rem; margin-bottom: 1rem;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .55rem; margin-bottom: .85rem;
 }
 .card {
   background: var(--card); border: 1px solid var(--border);
-  border-radius: 1rem; padding: 1rem 1.1rem;
+  border-radius: .9rem; padding: .85rem 1rem;
 }
-.card .label { color: var(--muted); font-size: .75rem; }
-.card .value { font-size: 1.1rem; font-weight: 700; margin-top: .2rem; word-break: break-all; }
+.card .label { color: var(--muted); font-size: .72rem; }
+.card .value { font-size: 1.05rem; font-weight: 700; margin-top: .15rem; word-break: break-all; }
 .pos { color: var(--green); } .neg { color: var(--red); }
-.tabs { display: flex; gap: .4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.tabs { display: flex; gap: .35rem; margin-bottom: .85rem; flex-wrap: wrap; }
 .tab {
-  flex: 1; min-width: 90px; text-align: center; padding: .55rem .4rem; border-radius: .65rem;
+  flex: 1; min-width: 72px; text-align: center; padding: .5rem .3rem; border-radius: .6rem;
   border: 1px solid var(--border); background: transparent; color: var(--muted);
-  cursor: pointer; font-weight: 600; font-size: .85rem;
+  cursor: pointer; font-weight: 600; font-size: .8rem;
 }
 .tab.active { background: #0f172a; color: var(--accent); border-color: var(--accent); }
-form.add, .api-box, .opts { display: grid; gap: .6rem; margin-bottom: 1rem; }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
-label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .25rem; }
+form.add, .api-box, .opts, .panel { display: grid; gap: .55rem; margin-bottom: .9rem; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+label { font-size: .78rem; color: var(--muted); display: block; margin-bottom: .2rem; }
 input, select {
   width: 100%; background: #0f172a; border: 1px solid var(--border);
-  border-radius: .6rem; color: var(--text); padding: .65rem .75rem; font-size: 1rem;
+  border-radius: .55rem; color: var(--text); padding: .6rem .7rem; font-size: .95rem;
 }
-input:focus, select:focus { outline: 2px solid var(--accent); border-color: transparent; }
 button {
-  border: none; border-radius: .65rem; padding: .75rem 1rem;
-  font-weight: 700; cursor: pointer; font-size: .95rem;
+  border: none; border-radius: .6rem; padding: .7rem .9rem;
+  font-weight: 700; cursor: pointer; font-size: .9rem;
 }
 .btn-primary {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -56,38 +56,50 @@ button {
 }
 .btn-ghost {
   background: transparent; color: var(--muted); border: 1px solid var(--border);
-  padding: .4rem .7rem; font-size: .8rem;
+  padding: .35rem .65rem; font-size: .78rem;
 }
 .btn-danger { color: var(--red); border-color: #7f1d1d; }
 .warn {
   background: #1c1917; border: 1px solid #78350f; color: var(--warn);
-  border-radius: .75rem; padding: .75rem; font-size: .8rem;
+  border-radius: .7rem; padding: .65rem; font-size: .78rem;
 }
-.check { display: flex; align-items: center; gap: .5rem; font-size: .9rem; color: var(--muted); }
+.check { display: flex; align-items: center; gap: .45rem; font-size: .88rem; color: var(--muted); }
 .check input { width: auto; }
-.list { display: flex; flex-direction: column; gap: .65rem; }
-.item {
-  background: var(--card); border: 1px solid var(--border); border-radius: .9rem;
-  padding: .9rem 1rem; display: grid; grid-template-columns: 1fr auto; gap: .5rem;
+.alloc { margin-bottom: .9rem; }
+.alloc h3 { margin: 0 0 .5rem; font-size: .95rem; }
+.bar-row { display: grid; grid-template-columns: 56px 1fr 52px; gap: .4rem; align-items: center; margin-bottom: .35rem; font-size: .8rem; }
+.bar-track { height: 10px; background: #0f172a; border-radius: 99px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.spark {
+  display: flex; align-items: flex-end; gap: 2px; height: 48px; margin-top: .5rem;
 }
-.item h3 { margin: 0; font-size: 1.05rem; }
-.item .meta { color: var(--muted); font-size: .85rem; }
-.item .pnl { font-weight: 700; text-align: left; direction: ltr; }
-.actions { display: flex; gap: .4rem; margin-top: .5rem; flex-wrap: wrap; }
+.spark span {
+  flex: 1; background: var(--accent2); opacity: .75; border-radius: 2px 2px 0 0; min-height: 2px;
+}
+.list { display: flex; flex-direction: column; gap: .55rem; }
+.item {
+  background: var(--card); border: 1px solid var(--border); border-radius: .85rem;
+  padding: .8rem .9rem; display: grid; grid-template-columns: 1fr auto; gap: .4rem;
+}
+.item h3 { margin: 0; font-size: 1rem; }
+.item .meta { color: var(--muted); font-size: .8rem; }
+.item .pnl { font-weight: 700; text-align: left; direction: ltr; font-size: .95rem; }
+.ch24 { font-size: .78rem; direction: ltr; display: inline-block; margin-right: .35rem; }
+.actions { display: flex; gap: .35rem; margin-top: .4rem; flex-wrap: wrap; }
 .empty {
-  text-align: center; color: var(--muted); padding: 2rem 1rem;
-  border: 1px dashed var(--border); border-radius: 1rem;
+  text-align: center; color: var(--muted); padding: 1.6rem 1rem;
+  border: 1px dashed var(--border); border-radius: .9rem;
 }
 .toolbar {
   display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: .75rem; gap: .5rem; flex-wrap: wrap;
+  margin-bottom: .65rem; gap: .4rem; flex-wrap: wrap;
 }
-.status { font-size: .8rem; color: var(--muted); }
-.api-status { font-size: .85rem; margin-top: .25rem; }
+.status { font-size: .75rem; color: var(--muted); }
+.api-status { font-size: .82rem; margin-top: .2rem; }
 .ok { color: var(--green); } .err { color: var(--red); }
-footer { margin-top: 2rem; text-align: center; color: var(--muted); font-size: .8rem; }
+footer { margin-top: 1.5rem; text-align: center; color: var(--muted); font-size: .75rem; }
 footer a { color: var(--accent2); }
-.disclaimer { margin-top: 1rem; font-size: .75rem; color: var(--muted); text-align: center; }
+.disclaimer { margin-top: .75rem; font-size: .72rem; color: var(--muted); text-align: center; }
 [hidden] { display: none !important; }
 @media (max-width: 560px) {
   .summary { grid-template-columns: 1fr; }
@@ -99,13 +111,29 @@ footer a { color: var(--accent2); }
 <div class="wrap">
   <header>
     <h1>محفظتي</h1>
-    <p class="sub">يدوي · Binance · Coinbase — عبر Vercel API (بدون CORS)</p>
+    <p class="sub">توزيع · تغيّر 24س · لقطات · خصوصية · تنبيهات</p>
   </header>
 
   <div class="summary">
-    <div class="card"><div class="label">القيمة الحالية</div><div class="value" id="totalValue">$0.00</div></div>
-    <div class="card"><div class="label">التكلفة</div><div class="value" id="totalCost">$0.00</div></div>
-    <div class="card"><div class="label">الربح / الخسارة</div><div class="value" id="totalPnl">$0.00</div></div>
+    <div class="card">
+      <div class="label">القيمة الحالية</div>
+      <div class="value blur-me" id="totalValue">$0.00</div>
+    </div>
+    <div class="card">
+      <div class="label">التكلفة</div>
+      <div class="value blur-me" id="totalCost">$0.00</div>
+    </div>
+    <div class="card">
+      <div class="label">الربح / الخسارة</div>
+      <div class="value blur-me" id="totalPnl">$0.00</div>
+    </div>
+  </div>
+
+  <div class="card alloc" id="allocCard" hidden>
+    <h3>توزيع المحفظة</h3>
+    <div id="allocBars"></div>
+    <div class="spark" id="spark" title="لقطات القيمة عبر الزمن"></div>
+    <div class="meta status" id="snapMeta" style="margin-top:.35rem"></div>
   </div>
 
   <div class="tabs">
@@ -166,7 +194,7 @@ footer a { color: var(--accent2); }
   </form>
 
   <div class="api-box card" id="binanceBox" hidden>
-    <div class="warn">Binance Read-only · الطلب يمر عبر <code>/api/binance-account</code> على Vercel</div>
+    <div class="warn">Binance عبر /api/binance-account</div>
     <div><label>API Key</label><input id="bnKey" type="password" autocomplete="off" /></div>
     <div><label>API Secret</label><input id="bnSecret" type="password" autocomplete="off" /></div>
     <div class="row">
@@ -178,7 +206,7 @@ footer a { color: var(--accent2); }
   </div>
 
   <div class="api-box card" id="coinbaseBox" hidden>
-    <div class="warn">Coinbase View · عبر <code>/api/coinbase-accounts</code> (تجاوز CORS)</div>
+    <div class="warn">Coinbase عبر /api/coinbase-accounts</div>
     <div><label>API Key</label><input id="cbKey" type="password" autocomplete="off" /></div>
     <div><label>API Secret</label><input id="cbSecret" type="password" autocomplete="off" /></div>
     <div><label>Passphrase</label><input id="cbPass" type="password" autocomplete="off" /></div>
@@ -191,19 +219,27 @@ footer a { color: var(--accent2); }
   </div>
 
   <div class="opts card" id="optionsBox" hidden>
-    <label>ترتيب العرض</label>
+    <label>ترتيب</label>
     <select id="sortBy">
       <option value="value">حسب القيمة</option>
-      <option value="pnl">حسب الربح/الخسارة</option>
+      <option value="pnl">حسب الربح</option>
       <option value="name">حسب الاسم</option>
-      <option value="added">حسب الإضافة</option>
+      <option value="change">حسب تغيّر 24س</option>
     </select>
-    <label class="check"><input type="checkbox" id="hideSmall" /> إخفاء الأرصدة أقل من $1</label>
-    <label class="check"><input type="checkbox" id="hideStable" /> إخفاء المستقرات (USDT/USDC/USD)</label>
-    <label>تحديث تلقائي (ثوانٍ) — 0 للإيقاف</label>
+    <label class="check"><input type="checkbox" id="hideSmall" /> إخفاء &lt; $1</label>
+    <label class="check"><input type="checkbox" id="hideStable" /> إخفاء المستقرات</label>
+    <label class="check"><input type="checkbox" id="privacyMode" /> وضع الخصوصية (إخفاء الأرقام)</label>
+    <label>تحديث تلقائي (ثوانٍ) — 0 إيقاف</label>
     <input id="refreshSec" type="number" min="0" max="600" value="60" />
+    <label>تنبيه إذا تغيّر إجمالي المحفظة بأكثر من (%)</label>
+    <input id="alertPct" type="number" min="0" max="100" step="0.1" value="0" placeholder="0 = معطّل" />
     <button type="button" class="btn-primary" id="saveOpts">حفظ الخيارات</button>
-    <button type="button" class="btn-ghost" id="syncAll" style="width:100%">مزامنة Binance + Coinbase معاً</button>
+    <div class="row">
+      <button type="button" class="btn-ghost" id="shareBtn" style="width:100%">مشاركة ملخص</button>
+      <button type="button" class="btn-ghost" id="importBtn" style="width:100%">استيراد CSV</button>
+    </div>
+    <input type="file" id="importFile" accept=".csv,text/csv" hidden />
+    <button type="button" class="btn-ghost" id="syncAll" style="width:100%">مزامنة Binance + Coinbase</button>
     <div class="api-status" id="optStatus"></div>
   </div>
 
@@ -213,13 +249,13 @@ footer a { color: var(--accent2); }
       <span class="status" id="status">—</span>
       <button type="button" class="btn-ghost" id="refreshBtn">تحديث</button>
       <button type="button" class="btn-ghost" id="exportBtn">CSV</button>
-      <button type="button" class="btn-ghost btn-danger" id="clearBtn">مسح الكل</button>
+      <button type="button" class="btn-ghost btn-danger" id="clearBtn">مسح</button>
     </div>
   </div>
 
   <div class="list" id="list"></div>
   <div class="empty" id="empty" hidden>لا توجد أصول بعد.</div>
-  <p class="disclaimer">تتبع فقط — ليست نصيحة استثمارية. انشر على Vercel لتفعيل مسارات /api.</p>
+  <p class="disclaimer">تتبع فقط — ليست نصيحة استثمارية. البيانات محلية على جهازك.</p>
   <footer>
     <p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">GitHub</a></p>
   </footer>
@@ -230,6 +266,8 @@ const STORAGE_KEY = "crypto_portfolio_v1";
 const BN_STORAGE = "crypto_portfolio_binance_api";
 const CB_STORAGE = "crypto_portfolio_coinbase_api";
 const OPTS_STORAGE = "crypto_portfolio_opts";
+const SNAP_STORAGE = "crypto_portfolio_snaps";
+const ALERT_BASE = "crypto_portfolio_alert_base";
 
 const listEl = document.getElementById("list");
 const emptyEl = document.getElementById("empty");
@@ -242,9 +280,14 @@ const form = document.getElementById("addForm");
 const binanceBox = document.getElementById("binanceBox");
 const coinbaseBox = document.getElementById("coinbaseBox");
 const optionsBox = document.getElementById("optionsBox");
+const allocCard = document.getElementById("allocCard");
+const allocBars = document.getElementById("allocBars");
+const spark = document.getElementById("spark");
 
 let refreshTimer = null;
 let lastPrices = {};
+let lastChanges = {};
+let lastTotal = 0;
 
 function load() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
@@ -271,19 +314,31 @@ function sourceLabel(s) {
   if (s === "coinbase") return " · Coinbase";
   return "";
 }
-
 function defaultOpts() {
-  return { sortBy: "value", hideSmall: false, hideStable: false, refreshSec: 60 };
+  return { sortBy: "value", hideSmall: false, hideStable: false, privacyMode: false, refreshSec: 60, alertPct: 0 };
 }
-function loadOpts() {
-  return { ...defaultOpts(), ...(loadJSON(OPTS_STORAGE) || {}) };
+function loadOpts() { return { ...defaultOpts(), ...(loadJSON(OPTS_STORAGE) || {}) }; }
+function saveOptsObj(o) { localStorage.setItem(OPTS_STORAGE, JSON.stringify(o)); }
+
+function loadSnaps() {
+  try { return JSON.parse(localStorage.getItem(SNAP_STORAGE) || "[]"); }
+  catch { return []; }
 }
-function saveOptsObj(o) {
-  localStorage.setItem(OPTS_STORAGE, JSON.stringify(o));
+function pushSnap(total) {
+  if (!(total > 0)) return;
+  const snaps = loadSnaps();
+  const now = Date.now();
+  if (snaps.length && now - snaps[snaps.length - 1].t < 5 * 60 * 1000) {
+    snaps[snaps.length - 1] = { t: now, v: total };
+  } else {
+    snaps.push({ t: now, v: total });
+  }
+  while (snaps.length > 48) snaps.shift();
+  localStorage.setItem(SNAP_STORAGE, JSON.stringify(snaps));
 }
 
 async function fetchPrices(symbols) {
-  if (!symbols.length) return {};
+  if (!symbols.length) return { prices: {}, changes: {} };
   try {
     const r = await fetch("/api/prices", {
       method: "POST",
@@ -292,91 +347,137 @@ async function fetchPrices(symbols) {
     });
     if (r.ok) {
       const data = await r.json();
-      if (data.prices) return data.prices;
+      return { prices: data.prices || {}, changes: data.changes || {} };
     }
   } catch (_) {}
-  // fallback direct Binance (may work for public ticker)
-  const prices = {};
+  const prices = {}, changes = {};
   const unique = [...new Set(symbols.map((s) => String(s).toUpperCase()))];
   await Promise.all(unique.map(async (sym) => {
-    if (["USDT", "USDC", "USD", "BUSD", "DAI"].includes(sym)) { prices[sym] = 1; return; }
+    if (["USDT", "USDC", "USD", "BUSD", "DAI"].includes(sym)) {
+      prices[sym] = 1; changes[sym] = 0; return;
+    }
     try {
-      const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=" + encodeURIComponent(sym + "USDT"));
-      if (!res.ok) throw new Error("x");
-      const data = await res.json();
-      prices[sym] = parseFloat(data.price);
-    } catch { prices[sym] = null; }
+      const res = await fetch("https://api.binance.com/api/v3/ticker/24hr?symbol=" + encodeURIComponent(sym + "USDT"));
+      if (res.ok) {
+        const d = await res.json();
+        prices[sym] = parseFloat(d.lastPrice);
+        changes[sym] = parseFloat(d.priceChangePercent);
+      } else { prices[sym] = null; changes[sym] = null; }
+    } catch { prices[sym] = null; changes[sym] = null; }
   }));
-  return prices;
+  return { prices, changes };
 }
 
-function render(items, prices) {
+function renderAlloc(rows, totalValue) {
+  if (!rows.length || !(totalValue > 0)) {
+    allocCard.hidden = true;
+    return;
+  }
+  allocCard.hidden = false;
+  const top = [...rows].filter((r) => r.value > 0).sort((a, b) => b.value - a.value).slice(0, 8);
+  allocBars.innerHTML = top.map((r) => {
+    const pct = (r.value / totalValue) * 100;
+    return `<div class="bar-row">
+      <span>${escapeHtml(r.item.symbol)}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
+      <span class="blur-me">${pct.toFixed(1)}%</span>
+    </div>`;
+  }).join("");
+
+  const snaps = loadSnaps();
+  spark.innerHTML = "";
+  if (snaps.length > 1) {
+    const max = Math.max(...snaps.map((s) => s.v), 1);
+    snaps.forEach((s) => {
+      const h = Math.max(2, (s.v / max) * 48);
+      const span = document.createElement("span");
+      span.style.height = h + "px";
+      spark.appendChild(span);
+    });
+    document.getElementById("snapMeta").textContent =
+      "لقطات: " + snaps.length + " · من " + fmt(snaps[0].v) + " → " + fmt(snaps[snaps.length - 1].v);
+  } else {
+    document.getElementById("snapMeta").textContent = "اللقطات تُبنى مع التحديثات...";
+  }
+}
+
+function render(items, prices, changes) {
   lastPrices = prices;
+  lastChanges = changes || {};
   const opts = loadOpts();
+  document.body.classList.toggle("privacy", !!opts.privacyMode);
+
   let rows = items.map((item) => {
     const price = prices[item.symbol];
     const cost = item.amount * item.buyPrice;
     const value = price != null ? item.amount * price : null;
     const pnl = value != null ? value - cost : null;
-    return { item, price, cost, value, pnl };
+    const ch = changes[item.symbol];
+    return { item, price, cost, value, pnl, ch };
   });
 
   if (opts.hideStable) {
     rows = rows.filter((r) => !["USDT", "USDC", "USD", "BUSD", "DAI"].includes(String(r.item.symbol).toUpperCase()));
   }
-  if (opts.hideSmall) {
-    rows = rows.filter((r) => r.value == null || r.value >= 1);
-  }
+  if (opts.hideSmall) rows = rows.filter((r) => r.value == null || r.value >= 1);
 
   if (opts.sortBy === "value") rows.sort((a, b) => (b.value || 0) - (a.value || 0));
   else if (opts.sortBy === "pnl") rows.sort((a, b) => (b.pnl || 0) - (a.pnl || 0));
   else if (opts.sortBy === "name") rows.sort((a, b) => String(a.item.symbol).localeCompare(b.item.symbol));
-  else rows.sort((a, b) => (b.item.createdAt || 0) - (a.item.createdAt || 0));
+  else if (opts.sortBy === "change") rows.sort((a, b) => (b.ch || -999) - (a.ch || -999));
 
   listEl.innerHTML = "";
   countEl.textContent = rows.length ? "(" + rows.length + ")" : "";
 
+  let totalValue = 0, totalCost = 0;
   if (!rows.length) {
     emptyEl.hidden = false;
     totalValueEl.textContent = "$0.00";
     totalCostEl.textContent = "$0.00";
     totalPnlEl.textContent = "$0.00";
-    totalPnlEl.className = "value";
+    totalPnlEl.className = "value blur-me";
+    allocCard.hidden = true;
     return;
   }
   emptyEl.hidden = true;
 
-  let totalValue = 0, totalCost = 0;
-  rows.forEach(({ item, price, cost, value, pnl }) => {
+  rows.forEach(({ item, price, cost, value, pnl, ch }) => {
     if (value != null) totalValue += value;
     totalCost += cost;
     const pnlPct = value != null && cost > 0 ? (pnl / cost) * 100 : null;
     const pnlClass = pnl == null ? "" : pnl >= 0 ? "pos" : "neg";
+    const chClass = ch == null ? "" : ch >= 0 ? "pos" : "neg";
+    const chHtml = ch != null ? `<span class="ch24 ${chClass}">${fmtPct(ch)} 24س</span>` : "";
     const div = document.createElement("div");
     div.className = "item";
     div.innerHTML = `
       <div>
-        <h3>${item.symbol}${item.note ? " · " + escapeHtml(item.note) : ""}${sourceLabel(item.source)}</h3>
+        <h3>${item.symbol}${chHtml}${item.note ? " · " + escapeHtml(item.note) : ""}${sourceLabel(item.source)}</h3>
         <div class="meta">
-          الكمية: ${item.amount} · شراء: ${fmt(item.buyPrice)}
-          ${price != null ? " · الحالي: " + fmt(price) : " · —"}
+          الكمية: <span class="blur-me">${item.amount}</span> · شراء: <span class="blur-me">${fmt(item.buyPrice)}</span>
+          ${price != null ? " · الحالي: <span class=\"blur-me\">" + fmt(price) + "</span>" : ""}
         </div>
         <div class="actions">
           <button type="button" class="btn-ghost btn-danger" data-del="${item.id}">حذف</button>
         </div>
       </div>
-      <div class="pnl ${pnlClass}">
+      <div class="pnl ${pnlClass} blur-me">
         ${value != null ? fmt(value) : "—"}<br/>
-        <span style="font-size:.85rem">${pnl != null ? fmt(pnl) + " (" + fmtPct(pnlPct) + ")" : ""}</span>
+        <span style="font-size:.82rem">${pnl != null ? fmt(pnl) + " (" + fmtPct(pnlPct) + ")" : ""}</span>
       </div>`;
     listEl.appendChild(div);
   });
 
   const totalPnl = totalValue - totalCost;
+  lastTotal = totalValue;
   totalValueEl.textContent = fmt(totalValue);
   totalCostEl.textContent = fmt(totalCost);
   totalPnlEl.textContent = fmt(totalPnl) + (totalCost > 0 ? " (" + fmtPct((totalPnl / totalCost) * 100) + ")" : "");
-  totalPnlEl.className = "value " + (totalPnl >= 0 ? "pos" : "neg");
+  totalPnlEl.className = "value blur-me " + (totalPnl >= 0 ? "pos" : "neg");
+
+  renderAlloc(rows, totalValue);
+  pushSnap(totalValue);
+  checkAlert(totalValue);
 
   listEl.querySelectorAll("[data-del]").forEach((btn) => {
     btn.onclick = () => {
@@ -386,11 +487,29 @@ function render(items, prices) {
   });
 }
 
+function checkAlert(total) {
+  const pct = Number(loadOpts().alertPct) || 0;
+  if (!(pct > 0) || !(total > 0)) return;
+  let base = Number(localStorage.getItem(ALERT_BASE) || 0);
+  if (!base) {
+    localStorage.setItem(ALERT_BASE, String(total));
+    return;
+  }
+  const change = Math.abs((total - base) / base) * 100;
+  if (change >= pct) {
+    const msg = "تنبيه محفظتي: التغيّر ≈ " + change.toFixed(2) + "% (الآن " + fmt(total) + ")";
+    if (Notification && Notification.permission === "granted") {
+      new Notification("محفظتي", { body: msg });
+    }
+    localStorage.setItem(ALERT_BASE, String(total));
+  }
+}
+
 async function refresh() {
   const items = load();
   statusEl.textContent = "...";
-  const prices = await fetchPrices(items.map((i) => i.symbol));
-  render(items, prices);
+  const { prices, changes } = await fetchPrices(items.map((i) => i.symbol));
+  render(items, prices, changes);
   statusEl.textContent = new Date().toLocaleTimeString("ar");
 }
 
@@ -402,9 +521,9 @@ async function syncBinance() {
   const creds = loadJSON(BN_STORAGE);
   const el = document.getElementById("bnStatus");
   if (!creds || !creds.key || !creds.secret) {
-    el.textContent = "احفظ المفاتيح أولاً"; el.className = "api-status err"; return false;
+    el.textContent = "احفظ المفاتيح"; el.className = "api-status err"; return;
   }
-  el.textContent = "مزامنة عبر /api/binance-account ..."; el.className = "api-status";
+  el.textContent = "مزامنة..."; el.className = "api-status";
   try {
     const r = await fetch("/api/binance-account", {
       method: "POST",
@@ -414,19 +533,17 @@ async function syncBinance() {
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || "Binance error");
     const balances = (data.balances || []).filter((b) => parseFloat(b.free) + parseFloat(b.locked) > 0);
-    const prices = await fetchPrices(balances.map((b) => b.asset));
+    const { prices } = await fetchPrices(balances.map((b) => b.asset));
     const synced = balances.map((b) => {
       const amount = parseFloat(b.free) + parseFloat(b.locked);
       const px = prices[b.asset] != null ? prices[b.asset] : 0;
       return { id: uid(), symbol: b.asset, amount, buyPrice: px, note: "مزامنة", source: "binance", createdAt: Date.now() };
     }).filter((x) => x.amount > 0);
     mergeSource("binance", synced);
-    el.textContent = "تم: " + synced.length + " أصل"; el.className = "api-status ok";
+    el.textContent = "تم: " + synced.length; el.className = "api-status ok";
     await refresh();
-    return true;
   } catch (e) {
     el.textContent = "فشل: " + (e.message || e); el.className = "api-status err";
-    return false;
   }
 }
 
@@ -434,18 +551,14 @@ async function syncCoinbase() {
   const creds = loadJSON(CB_STORAGE);
   const el = document.getElementById("cbStatus");
   if (!creds || !creds.key || !creds.secret || !creds.passphrase) {
-    el.textContent = "احفظ الحقول الثلاثة"; el.className = "api-status err"; return false;
+    el.textContent = "احفظ الحقول الثلاثة"; el.className = "api-status err"; return;
   }
-  el.textContent = "مزامنة عبر /api/coinbase-accounts ..."; el.className = "api-status";
+  el.textContent = "مزامنة..."; el.className = "api-status";
   try {
     const r = await fetch("/api/coinbase-accounts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        key: creds.key,
-        secret: creds.secret,
-        passphrase: creds.passphrase,
-      }),
+      body: JSON.stringify({ key: creds.key, secret: creds.secret, passphrase: creds.passphrase }),
     });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || "Coinbase error");
@@ -456,18 +569,16 @@ async function syncCoinbase() {
       const hold = parseFloat((a.hold && a.hold.value) || 0);
       return { asset: sym, amount: avail + hold };
     }).filter((b) => b.asset && b.amount > 0);
-    const prices = await fetchPrices(balances.map((b) => b.asset));
+    const { prices } = await fetchPrices(balances.map((b) => b.asset));
     const synced = balances.map((b) => {
       const px = prices[b.asset] != null ? prices[b.asset] : 0;
       return { id: uid(), symbol: b.asset, amount: b.amount, buyPrice: px, note: "مزامنة", source: "coinbase", createdAt: Date.now() };
     });
     mergeSource("coinbase", synced);
-    el.textContent = "تم: " + synced.length + " أصل"; el.className = "api-status ok";
+    el.textContent = "تم: " + synced.length; el.className = "api-status ok";
     await refresh();
-    return true;
   } catch (e) {
     el.textContent = "فشل: " + (e.message || e); el.className = "api-status err";
-    return false;
   }
 }
 
@@ -482,7 +593,9 @@ function fillOptsForm() {
   document.getElementById("sortBy").value = o.sortBy;
   document.getElementById("hideSmall").checked = !!o.hideSmall;
   document.getElementById("hideStable").checked = !!o.hideStable;
+  document.getElementById("privacyMode").checked = !!o.privacyMode;
   document.getElementById("refreshSec").value = o.refreshSec;
+  document.getElementById("alertPct").value = o.alertPct || 0;
 }
 
 document.querySelectorAll(".tab").forEach((tab) => {
@@ -551,22 +664,79 @@ document.getElementById("saveOpts").onclick = () => {
     sortBy: document.getElementById("sortBy").value,
     hideSmall: document.getElementById("hideSmall").checked,
     hideStable: document.getElementById("hideStable").checked,
+    privacyMode: document.getElementById("privacyMode").checked,
     refreshSec: Number(document.getElementById("refreshSec").value) || 0,
+    alertPct: Number(document.getElementById("alertPct").value) || 0,
   };
   saveOptsObj(o);
+  if (o.alertPct > 0 && Notification && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
   applyRefreshTimer();
-  document.getElementById("optStatus").textContent = "تم حفظ الخيارات";
+  document.getElementById("optStatus").textContent = "تم الحفظ";
   document.getElementById("optStatus").className = "api-status ok";
   refresh();
 };
 
+document.getElementById("shareBtn").onclick = async () => {
+  const items = load();
+  const total = lastTotal;
+  const lines = [
+    "ملخص محفظتي",
+    "القيمة: " + fmt(total),
+    "عدد الأصول: " + items.length,
+    "— تتبع محلي —",
+  ];
+  const text = lines.join("\n");
+  try {
+    if (navigator.share) await navigator.share({ title: "محفظتي", text });
+    else {
+      await navigator.clipboard.writeText(text);
+      document.getElementById("optStatus").textContent = "نُسخ الملخص";
+      document.getElementById("optStatus").className = "api-status ok";
+    }
+  } catch (_) {}
+};
+
+document.getElementById("importBtn").onclick = () => document.getElementById("importFile").click();
+document.getElementById("importFile").onchange = (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const text = String(reader.result || "");
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      const start = lines[0].toLowerCase().includes("symbol") ? 1 : 0;
+      const items = load();
+      for (let i = start; i < lines.length; i++) {
+        const parts = lines[i].split(",");
+        if (parts.length < 3) continue;
+        const symbol = parts[0].replace(/"/g, "").trim().toUpperCase();
+        const amount = parseFloat(parts[1]);
+        const buyPrice = parseFloat(parts[2]);
+        const note = (parts[3] || "").replace(/^"|"$/g, "");
+        if (!symbol || !(amount > 0)) continue;
+        items.push({ id: uid(), symbol, amount, buyPrice: buyPrice || 0, note, source: "import", createdAt: Date.now() });
+      }
+      save(items);
+      document.getElementById("optStatus").textContent = "تم الاستيراد";
+      document.getElementById("optStatus").className = "api-status ok";
+      refresh();
+    } catch (err) {
+      document.getElementById("optStatus").textContent = "فشل الاستيراد";
+      document.getElementById("optStatus").className = "api-status err";
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+};
+
 document.getElementById("syncAll").onclick = async () => {
-  const el = document.getElementById("optStatus");
-  el.textContent = "مزامنة الكل...";
   await syncBinance();
   await syncCoinbase();
-  el.textContent = "انتهت مزامنة الكل";
-  el.className = "api-status ok";
+  document.getElementById("optStatus").textContent = "انتهت المزامنة";
+  document.getElementById("optStatus").className = "api-status ok";
 };
 
 document.getElementById("refreshBtn").onclick = refresh;

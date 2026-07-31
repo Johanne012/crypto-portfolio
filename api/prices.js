@@ -14,30 +14,46 @@ module.exports = async function handler(req, res) {
 
     const unique = [...new Set(symbols.map((s) => String(s).toUpperCase()))];
     const prices = {};
+    const changes = {};
 
     await Promise.all(
       unique.map(async (sym) => {
         if (["USDT", "USDC", "USD", "BUSD", "DAI"].includes(sym)) {
           prices[sym] = 1;
+          changes[sym] = 0;
           return;
         }
         try {
           const r = await fetch(
-            "https://api.binance.com/api/v3/ticker/price?symbol=" + encodeURIComponent(sym + "USDT")
+            "https://api.binance.com/api/v3/ticker/24hr?symbol=" +
+              encodeURIComponent(sym + "USDT")
           );
           if (!r.ok) {
-            prices[sym] = null;
+            const r2 = await fetch(
+              "https://api.binance.com/api/v3/ticker/price?symbol=" +
+                encodeURIComponent(sym + "USDT")
+            );
+            if (r2.ok) {
+              const d = await r2.json();
+              prices[sym] = parseFloat(d.price);
+              changes[sym] = null;
+            } else {
+              prices[sym] = null;
+              changes[sym] = null;
+            }
             return;
           }
           const data = await r.json();
-          prices[sym] = parseFloat(data.price);
+          prices[sym] = parseFloat(data.lastPrice);
+          changes[sym] = parseFloat(data.priceChangePercent);
         } catch {
           prices[sym] = null;
+          changes[sym] = null;
         }
       })
     );
 
-    return res.status(200).json({ prices });
+    return res.status(200).json({ prices, changes });
   } catch (e) {
     return res.status(500).json({ error: e.message || "server error" });
   }
