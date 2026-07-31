@@ -3,1059 +3,171 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>محفظتي — تتبع وتحليل مخاطر</title>
+<title>محفظتي</title>
 <meta name="theme-color" content="#0b1220" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-:root {
-  --bg: #0b1220; --card: #121a2b; --border: #1e293b;
-  --text: #e8eefc; --muted: #9aa8c7; --green: #34d399;
-  --red: #f87171; --accent: #2dd4bf; --accent2: #38bdf8; --warn: #fbbf24;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
-  background: var(--bg); color: var(--text); line-height: 1.55; min-height: 100vh;
-}
-body.privacy .blur-me { filter: blur(7px); user-select: none; }
-.wrap { max-width: 820px; margin: 0 auto; padding: 1.1rem 1rem 3rem; }
-header { text-align: center; margin-bottom: 1rem; }
-h1 { font-size: 1.55rem; margin: 0 0 .25rem; }
-.sub { color: var(--muted); font-size: .9rem; margin: 0; }
-.summary {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .55rem; margin-bottom: .85rem;
-}
-.card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: .9rem; padding: .85rem 1rem;
-}
-.card .label { color: var(--muted); font-size: .72rem; }
-.card .value { font-size: 1.05rem; font-weight: 700; margin-top: .15rem; word-break: break-all; }
-.pos { color: var(--green); } .neg { color: var(--red); }
-.tabs { display: flex; gap: .3rem; margin-bottom: .85rem; flex-wrap: wrap; }
-.tab {
-  flex: 1; min-width: 64px; text-align: center; padding: .48rem .25rem; border-radius: .55rem;
-  border: 1px solid var(--border); background: transparent; color: var(--muted);
-  cursor: pointer; font-weight: 600; font-size: .75rem;
-}
-.tab.active { background: #0f172a; color: var(--accent); border-color: var(--accent); }
-form.add, .api-box, .opts { display: grid; gap: .55rem; margin-bottom: .9rem; }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
-label { font-size: .78rem; color: var(--muted); display: block; margin-bottom: .2rem; }
-input, select, textarea {
-  width: 100%; background: #0f172a; border: 1px solid var(--border);
-  border-radius: .55rem; color: var(--text); padding: .6rem .7rem; font-size: .95rem;
-}
-textarea { font-family: ui-monospace, monospace; font-size: .75rem; min-height: 120px; }
-button {
-  border: none; border-radius: .55rem; padding: .65rem .85rem;
-  font-weight: 700; cursor: pointer; font-size: .88rem;
-}
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: #042f2e; width: 100%;
-}
-.btn-ghost {
-  background: transparent; color: var(--muted); border: 1px solid var(--border);
-  padding: .35rem .6rem; font-size: .76rem;
-}
-.btn-danger { color: var(--red); border-color: #7f1d1d; }
-.warn {
-  background: #1c1917; border: 1px solid #78350f; color: var(--warn);
-  border-radius: .65rem; padding: .6rem; font-size: .76rem;
-}
-.check { display: flex; align-items: center; gap: .4rem; font-size: .86rem; color: var(--muted); }
-.check input { width: auto; }
-.charts {
-  display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .9rem;
-}
-.chart-box { position: relative; min-height: 210px; }
-.chart-box h3 { margin: 0 0 .45rem; font-size: .88rem; color: var(--muted); font-weight: 600; }
-.risk-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: .65rem;
-}
-.risk-item {
-  background: #0f172a; border-radius: .6rem; padding: .55rem .7rem; border: 1px solid var(--border);
-}
-.risk-item .k { font-size: .7rem; color: var(--muted); }
-.risk-item .v { font-size: .95rem; font-weight: 700; margin-top: .12rem; }
-.risk-level {
-  display: inline-block; padding: .18rem .5rem; border-radius: .35rem; font-size: .78rem; font-weight: 700;
-}
-.risk-low { background: #064e3b; color: var(--green); }
-.risk-mid { background: #78350f; color: var(--warn); }
-.risk-high { background: #7f1d1d; color: var(--red); }
-.risk-notes { font-size: .8rem; color: var(--muted); margin: 0; padding-right: 1rem; }
-.bench {
-  font-size: .82rem; color: var(--muted); margin-top: .35rem;
-}
-.list { display: flex; flex-direction: column; gap: .5rem; }
-.item {
-  background: var(--card); border: 1px solid var(--border); border-radius: .8rem;
-  padding: .75rem .85rem; display: grid; grid-template-columns: 1fr auto; gap: .35rem;
-}
-.item h3 { margin: 0; font-size: .95rem; }
-.item .meta { color: var(--muted); font-size: .78rem; }
-.item .pnl { font-weight: 700; text-align: left; direction: ltr; font-size: .92rem; }
-.ch24 { font-size: .75rem; direction: ltr; display: inline-block; margin-right: .3rem; }
-.actions { display: flex; gap: .3rem; margin-top: .35rem; flex-wrap: wrap; }
-.empty {
-  text-align: center; color: var(--muted); padding: 1.5rem 1rem;
-  border: 1px dashed var(--border); border-radius: .85rem;
-}
-.toolbar {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: .6rem; gap: .4rem; flex-wrap: wrap;
-}
-.status { font-size: .72rem; color: var(--muted); }
-.api-status { font-size: .8rem; margin-top: .15rem; }
-.ok { color: var(--green); } .err { color: var(--red); }
-.sec-title { font-size: .85rem; color: var(--accent); margin: .4rem 0 .2rem; font-weight: 700; }
-footer { margin-top: 1.4rem; text-align: center; color: var(--muted); font-size: .72rem; }
-footer a { color: var(--accent2); }
-.disclaimer { margin-top: .7rem; font-size: .7rem; color: var(--muted); text-align: center; }
-[hidden] { display: none !important; }
-@media (max-width: 640px) {
-  .summary, .charts, .risk-grid { grid-template-columns: 1fr; }
-  .row { grid-template-columns: 1fr; }
-}
+:root{--bg:#0b1220;--card:#121a2b;--border:#1e293b;--text:#e8eefc;--muted:#9aa8c7;--green:#34d399;--red:#f87171;--accent:#2dd4bf;--accent2:#38bdf8;--warn:#fbbf24}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;min-height:100vh}
+body.privacy .blur-me{filter:blur(7px);user-select:none}
+.wrap{max-width:820px;margin:0 auto;padding:1.1rem 1rem 3rem}
+header{text-align:center;margin-bottom:1rem}h1{font-size:1.5rem;margin:0 0 .25rem}.sub{color:var(--muted);font-size:.9rem;margin:0}
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.55rem;margin-bottom:.85rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:.9rem;padding:.85rem 1rem}
+.card .label{color:var(--muted);font-size:.72rem}.card .value{font-size:1.05rem;font-weight:700;margin-top:.15rem;word-break:break-all}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.tabs{display:flex;gap:.3rem;margin-bottom:.85rem;flex-wrap:wrap}
+.tab{flex:1;min-width:58px;text-align:center;padding:.45rem .2rem;border-radius:.55rem;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-weight:600;font-size:.72rem}
+.tab.active{background:#0f172a;color:var(--accent);border-color:var(--accent)}
+form.add,.api-box,.opts{display:grid;gap:.55rem;margin-bottom:.9rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+label{font-size:.78rem;color:var(--muted);display:block;margin-bottom:.2rem}
+input,select,textarea{width:100%;background:#0f172a;border:1px solid var(--border);border-radius:.55rem;color:var(--text);padding:.6rem .7rem;font-size:.95rem}
+textarea{font-family:ui-monospace,monospace;font-size:.75rem;min-height:110px}
+button{border:none;border-radius:.55rem;padding:.65rem .85rem;font-weight:700;cursor:pointer;font-size:.88rem}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#042f2e;width:100%}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);padding:.35rem .6rem;font-size:.76rem}
+.btn-danger{color:var(--red);border-color:#7f1d1d}
+.warn{background:#1c1917;border:1px solid #78350f;color:var(--warn);border-radius:.65rem;padding:.6rem;font-size:.76rem}
+.check{display:flex;align-items:center;gap:.4rem;font-size:.86rem;color:var(--muted)}.check input{width:auto}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.9rem}
+.chart-box{position:relative;min-height:200px}.chart-box h3{margin:0 0 .45rem;font-size:.88rem;color:var(--muted)}
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.65rem}
+.risk-item{background:#0f172a;border-radius:.6rem;padding:.55rem .7rem;border:1px solid var(--border)}
+.risk-item .k{font-size:.7rem;color:var(--muted)}.risk-item .v{font-size:.95rem;font-weight:700}
+.risk-level{display:inline-block;padding:.18rem .5rem;border-radius:.35rem;font-size:.78rem;font-weight:700}
+.risk-low{background:#064e3b;color:var(--green)}.risk-mid{background:#78350f;color:var(--warn)}.risk-high{background:#7f1d1d;color:var(--red)}
+.risk-notes{font-size:.8rem;color:var(--muted);margin:0;padding-right:1rem}.bench{font-size:.82rem;color:var(--muted);margin-top:.35rem}
+.list{display:flex;flex-direction:column;gap:.5rem}
+.item{background:var(--card);border:1px solid var(--border);border-radius:.8rem;padding:.75rem .85rem;display:grid;grid-template-columns:1fr auto;gap:.35rem}
+.item h3{margin:0;font-size:.95rem}.item .meta{color:var(--muted);font-size:.78rem}
+.item .pnl{font-weight:700;text-align:left;direction:ltr;font-size:.92rem}
+.ch24{font-size:.75rem;direction:ltr;display:inline-block;margin-right:.3rem}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;gap:.4rem;flex-wrap:wrap}
+.status{font-size:.72rem;color:var(--muted)}.api-status{font-size:.8rem;margin-top:.15rem}.ok{color:var(--green)}.err{color:var(--red)}
+.sec-title{font-size:.85rem;color:var(--accent);margin:.4rem 0 .2rem;font-weight:700}
+footer{margin-top:1.4rem;text-align:center;color:var(--muted);font-size:.72rem}footer a{color:var(--accent2)}
+.disclaimer{margin-top:.7rem;font-size:.7rem;color:var(--muted);text-align:center}
+.empty{text-align:center;color:var(--muted);padding:1.5rem;border:1px dashed var(--border);border-radius:.85rem}
+[hidden]{display:none!important}
+@media(max-width:640px){.summary,.charts,.risk-grid,.row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>محفظتي</h1>
-    <p class="sub">رسوم · مخاطر · JSON للمطورين · Webhook</p>
-  </header>
-
-  <div class="summary">
-    <div class="card"><div class="label">القيمة</div><div class="value blur-me" id="totalValue">$0.00</div></div>
-    <div class="card"><div class="label">التكلفة</div><div class="value blur-me" id="totalCost">$0.00</div></div>
-    <div class="card"><div class="label">الربح/الخسارة</div><div class="value blur-me" id="totalPnl">$0.00</div></div>
-  </div>
-  <div class="bench blur-me" id="btcBench" hidden></div>
-
-  <div class="charts" id="chartsRow" hidden>
-    <div class="card chart-box"><h3>توزيع الأصول</h3><canvas id="pieChart"></canvas></div>
-    <div class="card chart-box"><h3>القيمة عبر الزمن</h3><canvas id="lineChart"></canvas></div>
-  </div>
-
-  <div class="card" id="riskCard" hidden>
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.55rem">
-      <strong style="font-size:.92rem">تحليل المخاطر</strong>
-      <span id="riskBadge" class="risk-level risk-mid">—</span>
-    </div>
-    <div class="risk-grid" id="riskGrid"></div>
-    <ul class="risk-notes" id="riskNotes"></ul>
-  </div>
-
-  <div class="tabs">
-    <button type="button" class="tab active" data-tab="manual">يدوي</button>
-    <button type="button" class="tab" data-tab="binance">Binance</button>
-    <button type="button" class="tab" data-tab="coinbase">Coinbase</button>
-    <button type="button" class="tab" data-tab="options">خيارات</button>
-    <button type="button" class="tab" data-tab="dev">مطوّر</button>
-  </div>
-
-  <form class="add card" id="addForm">
-    <div class="row">
-      <div>
-        <label>العملة</label>
-        <select id="symbol">
-          <option value="BTC">Bitcoin (BTC)</option>
-          <option value="ETH">Ethereum (ETH)</option>
-          <option value="BNB">BNB</option>
-          <option value="SOL">Solana (SOL)</option>
-          <option value="XRP">XRP</option>
-          <option value="ADA">Cardano (ADA)</option>
-          <option value="DOGE">Dogecoin</option>
-          <option value="TON">TON</option>
-          <option value="TRX">TRX</option>
-          <option value="DOT">DOT</option>
-          <option value="POL">POL</option>
-          <option value="LTC">LTC</option>
-          <option value="AVAX">AVAX</option>
-          <option value="LINK">LINK</option>
-          <option value="UNI">UNI</option>
-          <option value="ATOM">ATOM</option>
-          <option value="NEAR">NEAR</option>
-          <option value="APT">APT</option>
-          <option value="ARB">ARB</option>
-          <option value="OP">OP</option>
-          <option value="SUI">SUI</option>
-          <option value="PEPE">PEPE</option>
-          <option value="SHIB">SHIB</option>
-          <option value="USDT">USDT</option>
-          <option value="USDC">USDC</option>
-        </select>
-      </div>
-      <div>
-        <label>الكمية</label>
-        <input id="amount" type="number" step="any" min="0" required />
-      </div>
-    </div>
-    <div class="row">
-      <div>
-        <label>سعر الشراء (USDT)</label>
-        <input id="buyPrice" type="number" step="any" min="0" required />
-      </div>
-      <div>
-        <label>ملاحظة</label>
-        <input id="note" type="text" maxlength="40" />
-      </div>
-    </div>
-    <label class="check"><input type="checkbox" id="paperFlag" /> وضع ورقي (Paper) — لا يُحسب في المخاطر الأساسية لاحقاً إن فُصل</label>
-    <button type="submit" class="btn-primary">إضافة</button>
-  </form>
-
-  <div class="api-box card" id="binanceBox" hidden>
-    <div class="warn">Binance · /api/binance-account</div>
-    <div><label>API Key</label><input id="bnKey" type="password" autocomplete="off" /></div>
-    <div><label>API Secret</label><input id="bnSecret" type="password" autocomplete="off" /></div>
-    <div class="row">
-      <button type="button" class="btn-primary" id="bnSave">حفظ</button>
-      <button type="button" class="btn-ghost" id="bnClear" style="width:100%">مسح</button>
-    </div>
-    <button type="button" class="btn-primary" id="bnSync">مزامنة</button>
-    <div class="api-status" id="bnStatus">غير مربوط</div>
-  </div>
-
-  <div class="api-box card" id="coinbaseBox" hidden>
-    <div class="warn">Coinbase · /api/coinbase-accounts</div>
-    <div><label>API Key</label><input id="cbKey" type="password" autocomplete="off" /></div>
-    <div><label>API Secret</label><input id="cbSecret" type="password" autocomplete="off" /></div>
-    <div><label>Passphrase</label><input id="cbPass" type="password" autocomplete="off" /></div>
-    <div class="row">
-      <button type="button" class="btn-primary" id="cbSave">حفظ</button>
-      <button type="button" class="btn-ghost" id="cbClear" style="width:100%">مسح</button>
-    </div>
-    <button type="button" class="btn-primary" id="cbSync">مزامنة</button>
-    <div class="api-status" id="cbStatus">غير مربوط</div>
-  </div>
-
-  <div class="opts card" id="optionsBox" hidden>
-    <label>ترتيب</label>
-    <select id="sortBy">
-      <option value="value">قيمة</option>
-      <option value="pnl">ربح</option>
-      <option value="name">اسم</option>
-      <option value="change">تغيّر 24س</option>
-    </select>
-    <label class="check"><input type="checkbox" id="hideSmall" /> إخفاء &lt; $1</label>
-    <label class="check"><input type="checkbox" id="hideStable" /> إخفاء المستقرات</label>
-    <label class="check"><input type="checkbox" id="privacyMode" /> خصوصية</label>
-    <label class="check"><input type="checkbox" id="showBtcBench" /> مقارنة بشراء BTC بنفس التكلفة</label>
-    <label>تحديث (ثوانٍ)</label>
-    <input id="refreshSec" type="number" min="0" max="600" value="60" />
-    <label>تنبيه تغيّر %</label>
-    <input id="alertPct" type="number" min="0" max="100" step="0.1" value="0" />
-    <div class="sec-title">هدف التخصيص (Target %)</div>
-    <div class="row">
-      <div><label>BTC %</label><input id="tgtBtc" type="number" min="0" max="100" step="1" value="0" /></div>
-      <div><label>ETH %</label><input id="tgtEth" type="number" min="0" max="100" step="1" value="0" /></div>
-    </div>
-    <div id="targetGap" class="bench"></div>
-    <button type="button" class="btn-primary" id="saveOpts">حفظ الخيارات</button>
-    <div class="row">
-      <button type="button" class="btn-ghost" id="shareBtn" style="width:100%">مشاركة</button>
-      <button type="button" class="btn-ghost" id="importBtn" style="width:100%">استيراد CSV</button>
-    </div>
-    <input type="file" id="importFile" accept=".csv" hidden />
-    <button type="button" class="btn-ghost" id="syncAll" style="width:100%">مزامنة المنصتين</button>
-    <div class="api-status" id="optStatus"></div>
-  </div>
-
-  <div class="opts card" id="devBox" hidden>
-    <div class="warn">للمطوّرين والشركات الناشئة · انظر <code>DEV.md</code></div>
-    <div class="sec-title">1) تصدير JSON (محفظة + مخاطر)</div>
-    <textarea id="jsonOut" readonly placeholder="اضغط توليد..."></textarea>
-    <div class="row">
-      <button type="button" class="btn-primary" id="genJson">توليد JSON</button>
-      <button type="button" class="btn-ghost" id="copyJson" style="width:100%">نسخ</button>
-    </div>
-    <button type="button" class="btn-ghost" id="dlJson" style="width:100%">تنزيل .json</button>
-
-    <div class="sec-title">2) Webhook</div>
-    <label>URL (https://...)</label>
-    <input id="hookUrl" type="url" placeholder="https://hooks.example.com/..." />
-    <label class="check"><input type="checkbox" id="hookOnRefresh" /> إرسال تلقائي عند كل تحديث ناجح</label>
-    <div class="row">
-      <button type="button" class="btn-primary" id="hookSave">حفظ Webhook</button>
-      <button type="button" class="btn-ghost" id="hookTest" style="width:100%">اختبار إرسال</button>
-    </div>
-    <div class="api-status" id="devStatus"></div>
-    <p class="disclaimer" style="text-align:right">الإرسال عبر <code>/api/webhook-proxy</code> لتجاوز CORS. لا تضع أسراراً في الـ URL العام.</p>
-  </div>
-
-  <div class="toolbar">
-    <strong>الأصول <span id="count"></span></strong>
-    <div>
-      <span class="status" id="status">—</span>
-      <button type="button" class="btn-ghost" id="refreshBtn">تحديث</button>
-      <button type="button" class="btn-ghost" id="exportBtn">CSV</button>
-      <button type="button" class="btn-ghost btn-danger" id="clearBtn">مسح</button>
-    </div>
-  </div>
-
-  <div class="list" id="list"></div>
-  <div class="empty" id="empty" hidden>لا توجد أصول بعد.</div>
-  <p class="disclaimer">تحليل تقديري · ليس نصيحة استثمارية</p>
-  <footer><p><a href="https://github.com/Johanne012/crypto-portfolio" target="_blank" rel="noopener">GitHub</a> · <a href="DEV.md" target="_blank">DEV.md</a></p></footer>
+<header><h1>محفظتي</h1><p class="sub">منصات · سلسلة · مخاطر · مطوّر</p></header>
+<div class="summary">
+<div class="card"><div class="label">القيمة</div><div class="value blur-me" id="totalValue">$0.00</div></div>
+<div class="card"><div class="label">التكلفة</div><div class="value blur-me" id="totalCost">$0.00</div></div>
+<div class="card"><div class="label">الربح/الخسارة</div><div class="value blur-me" id="totalPnl">$0.00</div></div>
+</div>
+<div class="bench blur-me" id="btcBench" hidden></div>
+<div class="charts" id="chartsRow" hidden>
+<div class="card chart-box"><h3>توزيع</h3><canvas id="pieChart"></canvas></div>
+<div class="card chart-box"><h3>الزمن</h3><canvas id="lineChart"></canvas></div>
+</div>
+<div class="card" id="riskCard" hidden>
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:.55rem">
+<strong>تحليل المخاطر</strong><span id="riskBadge" class="risk-level risk-mid">—</span></div>
+<div class="risk-grid" id="riskGrid"></div><ul class="risk-notes" id="riskNotes"></ul>
 </div>
 
-<script>
-const STORAGE_KEY = "crypto_portfolio_v1";
-const BN_STORAGE = "crypto_portfolio_binance_api";
-const CB_STORAGE = "crypto_portfolio_coinbase_api";
-const OPTS_STORAGE = "crypto_portfolio_opts";
-const SNAP_STORAGE = "crypto_portfolio_snaps";
-const ALERT_BASE = "crypto_portfolio_alert_base";
-const HOOK_STORAGE = "crypto_portfolio_webhook";
-const STABLES = new Set(["USDT","USDC","USD","BUSD","DAI","TUSD","FDUSD"]);
-const COLORS = ["#2dd4bf","#38bdf8","#a78bfa","#f472b6","#fbbf24","#34d399","#fb923c","#94a3b8","#e879f9","#22d3ee"];
+<div class="tabs">
+<button type="button" class="tab active" data-tab="manual">يدوي</button>
+<button type="button" class="tab" data-tab="binance">Binance</button>
+<button type="button" class="tab" data-tab="coinbase">Coinbase</button>
+<button type="button" class="tab" data-tab="onchain">سلسلة</button>
+<button type="button" class="tab" data-tab="options">خيارات</button>
+<button type="button" class="tab" data-tab="dev">مطوّر</button>
+</div>
 
-let pieChart = null, lineChart = null, refreshTimer = null;
-let lastPrices = {}, lastChanges = {}, lastTotal = 0, lastCost = 0, lastRisk = null, lastRows = [];
+<form class="add card" id="addForm">
+<div class="row"><div><label>العملة</label>
+<select id="symbol">
+<option>BTC</option><option>ETH</option><option>BNB</option><option>SOL</option><option>XRP</option>
+<option>ADA</option><option>DOGE</option><option>TON</option><option>LINK</option><option>AVAX</option>
+<option>USDT</option><option>USDC</option>
+</select></div>
+<div><label>الكمية</label><input id="amount" type="number" step="any" min="0" required /></div></div>
+<div class="row"><div><label>سعر الشراء</label><input id="buyPrice" type="number" step="any" min="0" required /></div>
+<div><label>ملاحظة</label><input id="note" type="text" maxlength="40" /></div></div>
+<label class="check"><input type="checkbox" id="paperFlag" /> وضع ورقي Paper</label>
+<button type="submit" class="btn-primary">إضافة</button>
+</form>
 
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
-  catch { return []; }
-}
-function save(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-function loadJSON(k) {
-  try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; }
-}
-function fmt(n) {
-  if (n == null || Number.isNaN(n)) return "—";
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
-}
-function fmtPct(n) {
-  if (n == null || Number.isNaN(n)) return "";
-  return (n > 0 ? "+" : "") + Number(n).toFixed(2) + "%";
-}
-function escapeHtml(s) {
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-function sourceLabel(s) {
-  if (s === "binance") return " · Binance";
-  if (s === "coinbase") return " · Coinbase";
-  if (s === "paper") return " · Paper";
-  return "";
-}
-function defaultOpts() {
-  return {
-    sortBy: "value", hideSmall: false, hideStable: false, privacyMode: false,
-    refreshSec: 60, alertPct: 0, showBtcBench: false, tgtBtc: 0, tgtEth: 0,
-  };
-}
-function loadOpts() { return { ...defaultOpts(), ...(loadJSON(OPTS_STORAGE) || {}) }; }
-function saveOptsObj(o) { localStorage.setItem(OPTS_STORAGE, JSON.stringify(o)); }
-function loadSnaps() {
-  try { return JSON.parse(localStorage.getItem(SNAP_STORAGE) || "[]"); } catch { return []; }
-}
-function pushSnap(total) {
-  if (!(total > 0)) return;
-  const snaps = loadSnaps();
-  const now = Date.now();
-  if (snaps.length && now - snaps[snaps.length - 1].t < 5 * 60 * 1000)
-    snaps[snaps.length - 1] = { t: now, v: total };
-  else snaps.push({ t: now, v: total });
-  while (snaps.length > 60) snaps.shift();
-  localStorage.setItem(SNAP_STORAGE, JSON.stringify(snaps));
-}
-function loadHook() {
-  return loadJSON(HOOK_STORAGE) || { url: "", onRefresh: false };
-}
-function saveHook(h) {
-  localStorage.setItem(HOOK_STORAGE, JSON.stringify(h));
-}
+<div class="api-box card" id="binanceBox" hidden>
+<div class="warn">Binance API</div>
+<div><label>Key</label><input id="bnKey" type="password" /></div>
+<div><label>Secret</label><input id="bnSecret" type="password" /></div>
+<div class="row"><button type="button" class="btn-primary" id="bnSave">حفظ</button>
+<button type="button" class="btn-ghost" id="bnClear" style="width:100%">مسح</button></div>
+<button type="button" class="btn-primary" id="bnSync">مزامنة</button>
+<div class="api-status" id="bnStatus">—</div></div>
 
-async function fetchPrices(symbols) {
-  if (!symbols.length) return { prices: {}, changes: {} };
-  try {
-    const r = await fetch("/api/prices", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbols }),
-    });
-    if (r.ok) {
-      const data = await r.json();
-      return { prices: data.prices || {}, changes: data.changes || {} };
-    }
-  } catch (_) {}
-  const prices = {}, changes = {};
-  const unique = [...new Set(symbols.map((s) => String(s).toUpperCase()))];
-  await Promise.all(unique.map(async (sym) => {
-    if (STABLES.has(sym)) { prices[sym] = 1; changes[sym] = 0; return; }
-    try {
-      const res = await fetch("https://api.binance.com/api/v3/ticker/24hr?symbol=" + encodeURIComponent(sym + "USDT"));
-      if (res.ok) {
-        const d = await res.json();
-        prices[sym] = parseFloat(d.lastPrice);
-        changes[sym] = parseFloat(d.priceChangePercent);
-      } else { prices[sym] = null; changes[sym] = null; }
-    } catch { prices[sym] = null; changes[sym] = null; }
-  }));
-  return { prices, changes };
-}
+<div class="api-box card" id="coinbaseBox" hidden>
+<div class="warn">Coinbase API</div>
+<div><label>Key</label><input id="cbKey" type="password" /></div>
+<div><label>Secret</label><input id="cbSecret" type="password" /></div>
+<div><label>Passphrase</label><input id="cbPass" type="password" /></div>
+<div class="row"><button type="button" class="btn-primary" id="cbSave">حفظ</button>
+<button type="button" class="btn-ghost" id="cbClear" style="width:100%">مسح</button></div>
+<button type="button" class="btn-primary" id="cbSync">مزامنة</button>
+<div class="api-status" id="cbStatus">—</div></div>
 
-function analyzeRisk(rows, totalValue, changes) {
-  const notes = [];
-  if (!(totalValue > 0) || !rows.length) return null;
-  const bySym = {};
-  rows.forEach((r) => {
-    if (!(r.value > 0)) return;
-    const s = String(r.item.symbol).toUpperCase();
-    bySym[s] = (bySym[s] || 0) + r.value;
-  });
-  const weights = Object.entries(bySym).map(([sym, val]) => ({
-    sym, w: val / totalValue,
-    ch: changes[sym] != null ? Math.abs(changes[sym]) : null,
-  }));
-  const hhi = weights.reduce((s, x) => s + x.w * x.w, 0);
-  const effN = hhi > 0 ? 1 / hhi : 0;
-  const sorted = [...weights].sort((a, b) => b.w - a.w);
-  const top1 = sorted[0] ? sorted[0].w * 100 : 0;
-  const top3 = sorted.slice(0, 3).reduce((s, x) => s + x.w, 0) * 100;
-  const stableShare = weights.filter((x) => STABLES.has(x.sym)).reduce((s, x) => s + x.w, 0) * 100;
-  let volNum = 0, volDen = 0;
-  weights.forEach((x) => {
-    if (x.ch != null && !STABLES.has(x.sym)) { volNum += x.w * x.ch; volDen += x.w; }
-  });
-  const volProxy = volDen > 0 ? volNum / volDen : null;
-  const snaps = loadSnaps().map((s) => s.v).filter((v) => v > 0);
-  let maxDD = null;
-  if (snaps.length >= 2) {
-    let peak = snaps[0], dd = 0;
-    snaps.forEach((v) => {
-      if (v > peak) peak = v;
-      const d = peak > 0 ? (peak - v) / peak : 0;
-      if (d > dd) dd = d;
-    });
-    maxDD = dd * 100;
-  }
-  let divScore = Math.min(100, (effN / 8) * 70 + (1 - Math.min(top1 / 100, 1)) * 30);
-  if (weights.length === 1) divScore = Math.min(divScore, 15);
-  let riskScore = 0;
-  if (top1 >= 60) riskScore += 35; else if (top1 >= 40) riskScore += 22; else if (top1 >= 25) riskScore += 12; else riskScore += 5;
-  if (hhi >= 0.45) riskScore += 25; else if (hhi >= 0.25) riskScore += 15; else riskScore += 5;
-  if (volProxy != null) { if (volProxy >= 8) riskScore += 25; else if (volProxy >= 4) riskScore += 15; else riskScore += 5; }
-  else riskScore += 10;
-  if (stableShare < 5 && totalValue > 100) riskScore += 10;
-  if (stableShare >= 30) riskScore -= 8;
-  riskScore = Math.max(0, Math.min(100, riskScore));
-  let level = "متوسط", cls = "risk-mid";
-  if (riskScore >= 65) { level = "مرتفع"; cls = "risk-high"; }
-  else if (riskScore <= 35) { level = "منخفض-متوسط"; cls = "risk-low"; }
-  if (top1 >= 50) notes.push("تركّز عالٍ: أكبر أصل ≈ " + top1.toFixed(1) + "%");
-  if (effN < 3) notes.push("تنويع محدود (عدد فعّال ≈ " + effN.toFixed(1) + ")");
-  if (volProxy != null && volProxy >= 6) notes.push("تقلب يومي مرجّح ≈ " + volProxy.toFixed(1) + "%");
-  if (stableShare < 5) notes.push("حصة مستقرات منخفضة");
-  if (stableShare >= 40) notes.push("حصة مستقرات مرتفعة");
-  if (maxDD != null && maxDD >= 15) notes.push("أقصى تراجع لقطات ≈ " + maxDD.toFixed(1) + "%");
-  if (!notes.length) notes.push("لا إشارات تركّز حادة حالياً");
-  return { level, cls, riskScore, hhi, effN, top1, top3, stableShare, volProxy, maxDD, divScore, notes, nAssets: weights.length };
-}
+<div class="api-box card" id="onchainBox" hidden>
+<div class="warn">عنوان عام · BTC: Blockstream · ETH: رصيد أصلي فقط (ليس توكنات)</div>
+<label>الشبكة</label>
+<select id="ocChain"><option value="BTC">Bitcoin</option><option value="ETH">Ethereum</option></select>
+<label>العنوان</label>
+<input id="ocAddr" type="text" placeholder="bc1… / 1… / 0x…" autocomplete="off" />
+<label>سعر شراء مرجعي (اختياري)</label>
+<input id="ocBuy" type="number" step="any" min="0" placeholder="فارغ = السعر الحالي" />
+<button type="button" class="btn-primary" id="ocSync">مزامنة العنوان</button>
+<div class="api-status" id="ocStatus">—</div>
+</div>
 
-function buildExportPayload() {
-  const assets = lastRows.map((r) => ({
-    symbol: r.item.symbol,
-    amount: r.item.amount,
-    buyPrice: r.item.buyPrice,
-    price: r.price,
-    value: r.value,
-    pnl: r.pnl,
-    change24h: r.ch,
-    source: r.item.source || "manual",
-    note: r.item.note || "",
-    paper: !!r.item.paper,
-  }));
-  const risk = lastRisk ? {
-    level: lastRisk.level,
-    riskScore: lastRisk.riskScore,
-    divScore: lastRisk.divScore,
-    hhi: lastRisk.hhi,
-    effN: lastRisk.effN,
-    top1Pct: lastRisk.top1,
-    top3Pct: lastRisk.top3,
-    stableSharePct: lastRisk.stableShare,
-    volProxy24h: lastRisk.volProxy,
-    maxDrawdownPct: lastRisk.maxDD,
-    nAssets: lastRisk.nAssets,
-    notes: lastRisk.notes,
-  } : null;
-  return {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    portfolio: {
-      totalValue: lastTotal,
-      totalCost: lastCost,
-      totalPnl: lastTotal - lastCost,
-      assets,
-    },
-    risk,
-    meta: {
-      app: "crypto-portfolio",
-      repo: "https://github.com/Johanne012/crypto-portfolio",
-    },
-  };
-}
+<div class="opts card" id="optionsBox" hidden>
+<label>ترتيب</label>
+<select id="sortBy"><option value="value">قيمة</option><option value="pnl">ربح</option><option value="name">اسم</option><option value="change">24س</option></select>
+<label class="check"><input type="checkbox" id="hideSmall" /> إخفاء &lt;$1</label>
+<label class="check"><input type="checkbox" id="hideStable" /> إخفاء مستقرات</label>
+<label class="check"><input type="checkbox" id="privacyMode" /> خصوصية</label>
+<label class="check"><input type="checkbox" id="showBtcBench" /> مقارنة BTC</label>
+<label>تحديث ثوانٍ</label><input id="refreshSec" type="number" min="0" max="600" value="60" />
+<label>تنبيه %</label><input id="alertPct" type="number" min="0" max="100" step="0.1" value="0" />
+<div class="sec-title">هدف تخصيص %</div>
+<div class="row"><div><label>BTC</label><input id="tgtBtc" type="number" min="0" max="100" value="0" /></div>
+<div><label>ETH</label><input id="tgtEth" type="number" min="0" max="100" value="0" /></div></div>
+<div id="targetGap" class="bench"></div>
+<button type="button" class="btn-primary" id="saveOpts">حفظ</button>
+<div class="row"><button type="button" class="btn-ghost" id="shareBtn" style="width:100%">مشاركة</button>
+<button type="button" class="btn-ghost" id="importBtn" style="width:100%">CSV↑</button></div>
+<input type="file" id="importFile" accept=".csv" hidden />
+<button type="button" class="btn-ghost" id="syncAll" style="width:100%">مزامنة المنصتين</button>
+<div class="api-status" id="optStatus"></div></div>
 
-async function sendWebhook(test) {
-  const h = loadHook();
-  const el = document.getElementById("devStatus");
-  if (!h.url) {
-    el.textContent = "أدخل رابط Webhook"; el.className = "api-status err"; return;
-  }
-  const payload = buildExportPayload();
-  payload.meta.trigger = test ? "test" : "refresh";
-  el.textContent = "إرسال..."; el.className = "api-status";
-  try {
-    const r = await fetch("/api/webhook-proxy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: h.url, payload }),
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || "proxy failed");
-    el.textContent = data.ok
-      ? "OK · HTTP " + data.status
-      : "الهدف ردّ " + data.status;
-    el.className = "api-status " + (data.ok ? "ok" : "err");
-  } catch (e) {
-    el.textContent = "فشل: " + (e.message || e);
-    el.className = "api-status err";
-  }
-}
+<div class="opts card" id="devBox" hidden>
+<div class="warn">JSON + Webhook · DEV.md</div>
+<textarea id="jsonOut" readonly></textarea>
+<div class="row"><button type="button" class="btn-primary" id="genJson">توليد</button>
+<button type="button" class="btn-ghost" id="copyJson" style="width:100%">نسخ</button></div>
+<button type="button" class="btn-ghost" id="dlJson" style="width:100%">تنزيل</button>
+<div class="sec-title">Webhook</div>
+<input id="hookUrl" type="url" placeholder="https://..." />
+<label class="check"><input type="checkbox" id="hookOnRefresh" /> عند التحديث</label>
+<div class="row"><button type="button" class="btn-primary" id="hookSave">حفظ</button>
+<button type="button" class="btn-ghost" id="hookTest" style="width:100%">اختبار</button></div>
+<div class="api-status" id="devStatus"></div></div>
 
-function renderRisk(risk) {
-  const card = document.getElementById("riskCard");
-  if (!risk) { card.hidden = true; lastRisk = null; return; }
-  lastRisk = risk;
-  card.hidden = false;
-  const badge = document.getElementById("riskBadge");
-  badge.textContent = "مستوى: " + risk.level;
-  badge.className = "risk-level " + risk.cls;
-  const cells = [
-    { k: "درجة المخاطر", v: risk.riskScore.toFixed(0) },
-    { k: "درجة التنويع", v: risk.divScore.toFixed(0) },
-    { k: "HHI", v: risk.hhi.toFixed(3) },
-    { k: "عدد فعّال", v: risk.effN.toFixed(2) },
-    { k: "أكبر أصل %", v: risk.top1.toFixed(1) + "%" },
-    { k: "أعلى 3 %", v: risk.top3.toFixed(1) + "%" },
-    { k: "مستقرات %", v: risk.stableShare.toFixed(1) + "%" },
-    { k: "تقلب 24س", v: risk.volProxy != null ? risk.volProxy.toFixed(2) + "%" : "—" },
-    { k: "أقصى تراجع", v: risk.maxDD != null ? risk.maxDD.toFixed(1) + "%" : "—" },
-    { k: "عدد الرموز", v: String(risk.nAssets) },
-  ];
-  document.getElementById("riskGrid").innerHTML = cells.map((c) =>
-    `<div class="risk-item"><div class="k">${c.k}</div><div class="v blur-me">${c.v}</div></div>`
-  ).join("");
-  document.getElementById("riskNotes").innerHTML = risk.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
-}
-
-function updateCharts(rows, totalValue) {
-  const chartsRow = document.getElementById("chartsRow");
-  if (!(totalValue > 0) || !rows.length || typeof Chart === "undefined") {
-    chartsRow.hidden = true; return;
-  }
-  chartsRow.hidden = false;
-  const bySym = {};
-  rows.forEach((r) => {
-    if (!(r.value > 0)) return;
-    const s = String(r.item.symbol).toUpperCase();
-    bySym[s] = (bySym[s] || 0) + r.value;
-  });
-  let entries = Object.entries(bySym).sort((a, b) => b[1] - a[1]);
-  if (entries.length > 8) {
-    const top = entries.slice(0, 7);
-    const rest = entries.slice(7).reduce((s, x) => s + x[1], 0);
-    entries = [...top, ["أخرى", rest]];
-  }
-  const labels = entries.map((e) => e[0]);
-  const data = entries.map((e) => e[1]);
-  const colors = labels.map((_, i) => COLORS[i % COLORS.length]);
-  const pieCtx = document.getElementById("pieChart").getContext("2d");
-  if (pieChart) pieChart.destroy();
-  pieChart = new Chart(pieCtx, {
-    type: "doughnut",
-    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "bottom", labels: { color: "#9aa8c7", boxWidth: 12, font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              const v = ctx.raw;
-              const p = totalValue > 0 ? ((v / totalValue) * 100).toFixed(1) : 0;
-              return " " + ctx.label + ": " + fmt(v) + " (" + p + "%)";
-            },
-          },
-        },
-      },
-    },
-  });
-  const snaps = loadSnaps();
-  const lineCtx = document.getElementById("lineChart").getContext("2d");
-  if (lineChart) lineChart.destroy();
-  lineChart = new Chart(lineCtx, {
-    type: "line",
-    data: {
-      labels: snaps.length ? snaps.map((s) => new Date(s.t).toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" })) : ["—"],
-      datasets: [{
-        data: snaps.length ? snaps.map((s) => s.v) : [totalValue],
-        borderColor: "#2dd4bf", backgroundColor: "rgba(45,212,191,0.15)",
-        fill: true, tension: 0.3, pointRadius: 2,
-      }],
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => " " + fmt(c.raw) } } },
-      scales: {
-        x: { ticks: { color: "#9aa8c7", maxTicksLimit: 6 }, grid: { color: "#1e293b" } },
-        y: { ticks: { color: "#9aa8c7" }, grid: { color: "#1e293b" } },
-      },
-    },
-  });
-}
-
-function updateTargets(rows, totalValue) {
-  const o = loadOpts();
-  const el = document.getElementById("targetGap");
-  if (!(totalValue > 0) || (!(o.tgtBtc > 0) && !(o.tgtEth > 0))) {
-    el.textContent = "";
-    return;
-  }
-  let btc = 0, eth = 0;
-  rows.forEach((r) => {
-    if (!(r.value > 0)) return;
-    const s = String(r.item.symbol).toUpperCase();
-    if (s === "BTC") btc += r.value;
-    if (s === "ETH") eth += r.value;
-  });
-  const btcPct = (btc / totalValue) * 100;
-  const ethPct = (eth / totalValue) * 100;
-  const parts = [];
-  if (o.tgtBtc > 0) parts.push("BTC: " + btcPct.toFixed(1) + "% (هدف " + o.tgtBtc + "% · فجوة " + (btcPct - o.tgtBtc).toFixed(1) + ")");
-  if (o.tgtEth > 0) parts.push("ETH: " + ethPct.toFixed(1) + "% (هدف " + o.tgtEth + "% · فجوة " + (ethPct - o.tgtEth).toFixed(1) + ")");
-  el.textContent = parts.join(" | ");
-}
-
-function updateBtcBench(totalValue, totalCost, btcPrice) {
-  const el = document.getElementById("btcBench");
-  const o = loadOpts();
-  if (!o.showBtcBench || !(totalCost > 0) || !(btcPrice > 0)) {
-    el.hidden = true;
-    return;
-  }
-  const btcAmt = totalCost / btcPrice;
-  const btcVal = btcAmt * btcPrice; // = totalCost at current if same — use live
-  const liveBtcVal = btcAmt * btcPrice;
-  const portPnlPct = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0;
-  // If we bought BTC at "average" implied by spending totalCost now vs then:
-  // Simpler narrative: لو وُضعت نفس التكلفة في BTC بالسعر الحالي كمرجع نسبي غير دقيق زمنياً
-  // Better: compare portfolio value vs what totalCost is worth if converted to BTC at CURRENT price only shows 0 edge.
-  // Use: units = totalCost / avg entry is unknown. Approximate: performance vs holding the USD in BTC from "now snapshot".
-  // Practical: show BTC units affordable at current price with totalCost, and portfolio vs that notional.
-  el.hidden = false;
-  el.textContent =
-    "مرجع BTC: بنفس التكلفة (~" + fmt(totalCost) + ") ≈ " +
-    btcAmt.toFixed(6) + " BTC الآن (~" + fmt(liveBtcVal) + ") · أداء محفظتك " +
-    fmtPct(portPnlPct) + " مقابل التكلفة";
-}
-
-function render(items, prices, changes) {
-  lastPrices = prices;
-  lastChanges = changes || {};
-  const opts = loadOpts();
-  document.body.classList.toggle("privacy", !!opts.privacyMode);
-
-  let rows = items.map((item) => {
-    const price = prices[item.symbol];
-    const cost = item.amount * item.buyPrice;
-    const value = price != null ? item.amount * price : null;
-    const pnl = value != null ? value - cost : null;
-    return { item, price, cost, value, pnl, ch: changes[item.symbol] };
-  });
-
-  if (opts.hideStable) rows = rows.filter((r) => !STABLES.has(String(r.item.symbol).toUpperCase()));
-  if (opts.hideSmall) rows = rows.filter((r) => r.value == null || r.value >= 1);
-
-  if (opts.sortBy === "value") rows.sort((a, b) => (b.value || 0) - (a.value || 0));
-  else if (opts.sortBy === "pnl") rows.sort((a, b) => (b.pnl || 0) - (a.pnl || 0));
-  else if (opts.sortBy === "name") rows.sort((a, b) => String(a.item.symbol).localeCompare(b.item.symbol));
-  else if (opts.sortBy === "change") rows.sort((a, b) => (b.ch || -999) - (a.ch || -999));
-
-  lastRows = rows;
-  const listEl = document.getElementById("list");
-  const emptyEl = document.getElementById("empty");
-  listEl.innerHTML = "";
-  document.getElementById("count").textContent = rows.length ? "(" + rows.length + ")" : "";
-
-  let totalValue = 0, totalCost = 0;
-  if (!rows.length) {
-    emptyEl.hidden = false;
-    document.getElementById("totalValue").textContent = "$0.00";
-    document.getElementById("totalCost").textContent = "$0.00";
-    document.getElementById("totalPnl").textContent = "$0.00";
-    document.getElementById("chartsRow").hidden = true;
-    document.getElementById("riskCard").hidden = true;
-    document.getElementById("btcBench").hidden = true;
-    lastTotal = 0; lastCost = 0; lastRisk = null;
-    return;
-  }
-  emptyEl.hidden = true;
-
-  rows.forEach(({ item, price, cost, value, pnl, ch }) => {
-    if (value != null) totalValue += value;
-    totalCost += cost;
-    const pnlPct = value != null && cost > 0 ? (pnl / cost) * 100 : null;
-    const pnlClass = pnl == null ? "" : pnl >= 0 ? "pos" : "neg";
-    const chClass = ch == null ? "" : ch >= 0 ? "pos" : "neg";
-    const chHtml = ch != null ? `<span class="ch24 ${chClass}">${fmtPct(ch)} 24س</span>` : "";
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `
-      <div>
-        <h3>${item.symbol}${chHtml}${item.note ? " · " + escapeHtml(item.note) : ""}${sourceLabel(item.paper ? "paper" : item.source)}</h3>
-        <div class="meta">كمية <span class="blur-me">${item.amount}</span> · شراء <span class="blur-me">${fmt(item.buyPrice)}</span>
-        ${price != null ? " · <span class=\"blur-me\">" + fmt(price) + "</span>" : ""}</div>
-        <div class="actions"><button type="button" class="btn-ghost btn-danger" data-del="${item.id}">حذف</button></div>
-      </div>
-      <div class="pnl ${pnlClass} blur-me">${value != null ? fmt(value) : "—"}<br/>
-        <span style="font-size:.8rem">${pnl != null ? fmt(pnl) + " (" + fmtPct(pnlPct) + ")" : ""}</span></div>`;
-    listEl.appendChild(div);
-  });
-
-  lastTotal = totalValue;
-  lastCost = totalCost;
-  const totalPnl = totalValue - totalCost;
-  document.getElementById("totalValue").textContent = fmt(totalValue);
-  document.getElementById("totalCost").textContent = fmt(totalCost);
-  const pnlEl = document.getElementById("totalPnl");
-  pnlEl.textContent = fmt(totalPnl) + (totalCost > 0 ? " (" + fmtPct((totalPnl / totalCost) * 100) + ")" : "");
-  pnlEl.className = "value blur-me " + (totalPnl >= 0 ? "pos" : "neg");
-
-  pushSnap(totalValue);
-  updateCharts(rows, totalValue);
-  renderRisk(analyzeRisk(rows, totalValue, lastChanges));
-  updateTargets(rows, totalValue);
-  updateBtcBench(totalValue, totalCost, prices.BTC);
-  checkAlert(totalValue);
-
-  listEl.querySelectorAll("[data-del]").forEach((btn) => {
-    btn.onclick = () => {
-      save(load().filter((x) => x.id !== btn.getAttribute("data-del")));
-      refresh();
-    };
-  });
-
-  const hook = loadHook();
-  if (hook.onRefresh && hook.url) sendWebhook(false);
-}
-
-function checkAlert(total) {
-  const pct = Number(loadOpts().alertPct) || 0;
-  if (!(pct > 0) || !(total > 0)) return;
-  let base = Number(localStorage.getItem(ALERT_BASE) || 0);
-  if (!base) { localStorage.setItem(ALERT_BASE, String(total)); return; }
-  const change = Math.abs((total - base) / base) * 100;
-  if (change >= pct) {
-    if (window.Notification && Notification.permission === "granted") {
-      new Notification("محفظتي", { body: "تغيّر ≈ " + change.toFixed(2) + "% → " + fmt(total) });
-    }
-    localStorage.setItem(ALERT_BASE, String(total));
-  }
-}
-
-async function refresh() {
-  const items = load();
-  document.getElementById("status").textContent = "...";
-  const { prices, changes } = await fetchPrices(items.map((i) => i.symbol));
-  render(items, prices, changes);
-  document.getElementById("status").textContent = new Date().toLocaleTimeString("ar");
-}
-
-function mergeSource(source, synced) {
-  save([...load().filter((x) => x.source !== source), ...synced]);
-}
-
-async function syncBinance() {
-  const creds = loadJSON(BN_STORAGE);
-  const el = document.getElementById("bnStatus");
-  if (!creds?.key || !creds?.secret) { el.textContent = "احفظ المفاتيح"; el.className = "api-status err"; return; }
-  el.textContent = "..."; el.className = "api-status";
-  try {
-    const r = await fetch("/api/binance-account", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: creds.key, secret: creds.secret }),
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || "error");
-    const balances = (data.balances || []).filter((b) => parseFloat(b.free) + parseFloat(b.locked) > 0);
-    const { prices } = await fetchPrices(balances.map((b) => b.asset));
-    const synced = balances.map((b) => {
-      const amount = parseFloat(b.free) + parseFloat(b.locked);
-      const px = prices[b.asset] != null ? prices[b.asset] : 0;
-      return { id: uid(), symbol: b.asset, amount, buyPrice: px, note: "مزامنة", source: "binance", createdAt: Date.now() };
-    }).filter((x) => x.amount > 0);
-    mergeSource("binance", synced);
-    el.textContent = "تم: " + synced.length; el.className = "api-status ok";
-    await refresh();
-  } catch (e) {
-    el.textContent = "فشل: " + (e.message || e); el.className = "api-status err";
-  }
-}
-
-async function syncCoinbase() {
-  const creds = loadJSON(CB_STORAGE);
-  const el = document.getElementById("cbStatus");
-  if (!creds?.key || !creds?.secret || !creds?.passphrase) {
-    el.textContent = "احفظ الحقول"; el.className = "api-status err"; return;
-  }
-  el.textContent = "..."; el.className = "api-status";
-  try {
-    const r = await fetch("/api/coinbase-accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: creds.key, secret: creds.secret, passphrase: creds.passphrase }),
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || "error");
-    const accounts = data.accounts || [];
-    const balances = accounts.map((a) => {
-      const sym = (a.currency || a.available_balance?.currency || "").toUpperCase();
-      const avail = parseFloat(a.available_balance?.value || 0);
-      const hold = parseFloat(a.hold?.value || 0);
-      return { asset: sym, amount: avail + hold };
-    }).filter((b) => b.asset && b.amount > 0);
-    const { prices } = await fetchPrices(balances.map((b) => b.asset));
-    const synced = balances.map((b) => {
-      const px = prices[b.asset] != null ? prices[b.asset] : 0;
-      return { id: uid(), symbol: b.asset, amount: b.amount, buyPrice: px, note: "مزامنة", source: "coinbase", createdAt: Date.now() };
-    });
-    mergeSource("coinbase", synced);
-    el.textContent = "تم: " + synced.length; el.className = "api-status ok";
-    await refresh();
-  } catch (e) {
-    el.textContent = "فشل: " + (e.message || e); el.className = "api-status err";
-  }
-}
-
-function applyRefreshTimer() {
-  if (refreshTimer) clearInterval(refreshTimer);
-  const sec = Number(loadOpts().refreshSec) || 0;
-  if (sec > 0) refreshTimer = setInterval(refresh, sec * 1000);
-}
-function fillOptsForm() {
-  const o = loadOpts();
-  document.getElementById("sortBy").value = o.sortBy;
-  document.getElementById("hideSmall").checked = !!o.hideSmall;
-  document.getElementById("hideStable").checked = !!o.hideStable;
-  document.getElementById("privacyMode").checked = !!o.privacyMode;
-  document.getElementById("showBtcBench").checked = !!o.showBtcBench;
-  document.getElementById("refreshSec").value = o.refreshSec;
-  document.getElementById("alertPct").value = o.alertPct || 0;
-  document.getElementById("tgtBtc").value = o.tgtBtc || 0;
-  document.getElementById("tgtEth").value = o.tgtEth || 0;
-}
-function fillDevForm() {
-  const h = loadHook();
-  document.getElementById("hookUrl").value = h.url || "";
-  document.getElementById("hookOnRefresh").checked = !!h.onRefresh;
-}
-
-document.querySelectorAll(".tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-    tab.classList.add("active");
-    const t = tab.dataset.tab;
-    document.getElementById("addForm").hidden = t !== "manual";
-    document.getElementById("binanceBox").hidden = t !== "binance";
-    document.getElementById("coinbaseBox").hidden = t !== "coinbase";
-    document.getElementById("optionsBox").hidden = t !== "options";
-    document.getElementById("devBox").hidden = t !== "dev";
-    if (t === "options") fillOptsForm();
-    if (t === "dev") fillDevForm();
-  });
-});
-
-document.getElementById("addForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const symbol = document.getElementById("symbol").value;
-  const amount = parseFloat(document.getElementById("amount").value);
-  const buyPrice = parseFloat(document.getElementById("buyPrice").value);
-  const note = document.getElementById("note").value.trim();
-  const paper = document.getElementById("paperFlag").checked;
-  if (!(amount > 0) || !(buyPrice >= 0)) return;
-  const items = load();
-  items.push({
-    id: uid(), symbol, amount, buyPrice, note,
-    source: paper ? "paper" : "manual", paper, createdAt: Date.now(),
-  });
-  save(items);
-  e.target.reset();
-  refresh();
-});
-
-document.getElementById("bnSave").onclick = () => {
-  const key = document.getElementById("bnKey").value.trim();
-  const secret = document.getElementById("bnSecret").value.trim();
-  if (!key || !secret) return;
-  localStorage.setItem(BN_STORAGE, JSON.stringify({ key, secret }));
-  document.getElementById("bnStatus").textContent = "محفوظ";
-  document.getElementById("bnStatus").className = "api-status ok";
-};
-document.getElementById("bnClear").onclick = () => {
-  localStorage.removeItem(BN_STORAGE);
-  document.getElementById("bnKey").value = "";
-  document.getElementById("bnSecret").value = "";
-  document.getElementById("bnStatus").textContent = "غير مربوط";
-};
-document.getElementById("bnSync").onclick = syncBinance;
-
-document.getElementById("cbSave").onclick = () => {
-  const key = document.getElementById("cbKey").value.trim();
-  const secret = document.getElementById("cbSecret").value.trim();
-  const passphrase = document.getElementById("cbPass").value.trim();
-  if (!key || !secret || !passphrase) return;
-  localStorage.setItem(CB_STORAGE, JSON.stringify({ key, secret, passphrase }));
-  document.getElementById("cbStatus").textContent = "محفوظ";
-  document.getElementById("cbStatus").className = "api-status ok";
-};
-document.getElementById("cbClear").onclick = () => {
-  localStorage.removeItem(CB_STORAGE);
-  document.getElementById("cbKey").value = "";
-  document.getElementById("cbSecret").value = "";
-  document.getElementById("cbPass").value = "";
-  document.getElementById("cbStatus").textContent = "غير مربوط";
-};
-document.getElementById("cbSync").onclick = syncCoinbase;
-
-document.getElementById("saveOpts").onclick = () => {
-  const o = {
-    sortBy: document.getElementById("sortBy").value,
-    hideSmall: document.getElementById("hideSmall").checked,
-    hideStable: document.getElementById("hideStable").checked,
-    privacyMode: document.getElementById("privacyMode").checked,
-    showBtcBench: document.getElementById("showBtcBench").checked,
-    refreshSec: Number(document.getElementById("refreshSec").value) || 0,
-    alertPct: Number(document.getElementById("alertPct").value) || 0,
-    tgtBtc: Number(document.getElementById("tgtBtc").value) || 0,
-    tgtEth: Number(document.getElementById("tgtEth").value) || 0,
-  };
-  saveOptsObj(o);
-  if (o.alertPct > 0 && window.Notification?.permission === "default") Notification.requestPermission();
-  applyRefreshTimer();
-  document.getElementById("optStatus").textContent = "تم الحفظ";
-  document.getElementById("optStatus").className = "api-status ok";
-  refresh();
-};
-
-document.getElementById("genJson").onclick = () => {
-  const payload = buildExportPayload();
-  document.getElementById("jsonOut").value = JSON.stringify(payload, null, 2);
-  document.getElementById("devStatus").textContent = "تم التوليد";
-  document.getElementById("devStatus").className = "api-status ok";
-};
-document.getElementById("copyJson").onclick = async () => {
-  const t = document.getElementById("jsonOut").value || JSON.stringify(buildExportPayload(), null, 2);
-  document.getElementById("jsonOut").value = t;
-  try {
-    await navigator.clipboard.writeText(t);
-    document.getElementById("devStatus").textContent = "نُسخ";
-    document.getElementById("devStatus").className = "api-status ok";
-  } catch {
-    document.getElementById("devStatus").textContent = "تعذّر النسخ";
-    document.getElementById("devStatus").className = "api-status err";
-  }
-};
-document.getElementById("dlJson").onclick = () => {
-  const t = JSON.stringify(buildExportPayload(), null, 2);
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([t], { type: "application/json" }));
-  a.download = "portfolio-export.json";
-  a.click();
-};
-document.getElementById("hookSave").onclick = () => {
-  saveHook({
-    url: document.getElementById("hookUrl").value.trim(),
-    onRefresh: document.getElementById("hookOnRefresh").checked,
-  });
-  document.getElementById("devStatus").textContent = "Webhook محفوظ";
-  document.getElementById("devStatus").className = "api-status ok";
-};
-document.getElementById("hookTest").onclick = () => sendWebhook(true);
-
-document.getElementById("shareBtn").onclick = async () => {
-  const text = "ملخص محفظتي\n" + fmt(lastTotal) + " · أصول " + load().length;
-  try {
-    if (navigator.share) await navigator.share({ title: "محفظتي", text });
-    else await navigator.clipboard.writeText(text);
-  } catch (_) {}
-};
-document.getElementById("importBtn").onclick = () => document.getElementById("importFile").click();
-document.getElementById("importFile").onchange = (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const lines = String(reader.result || "").split(/\r?\n/).filter(Boolean);
-    const start = lines[0].toLowerCase().includes("symbol") ? 1 : 0;
-    const items = load();
-    for (let i = start; i < lines.length; i++) {
-      const p = lines[i].split(",");
-      if (p.length < 3) continue;
-      const symbol = p[0].replace(/"/g, "").trim().toUpperCase();
-      const amount = parseFloat(p[1]);
-      const buyPrice = parseFloat(p[2]);
-      if (!symbol || !(amount > 0)) continue;
-      items.push({ id: uid(), symbol, amount, buyPrice: buyPrice || 0, note: "", source: "import", createdAt: Date.now() });
-    }
-    save(items);
-    refresh();
-  };
-  reader.readAsText(file);
-  e.target.value = "";
-};
-document.getElementById("syncAll").onclick = async () => { await syncBinance(); await syncCoinbase(); };
-document.getElementById("refreshBtn").onclick = refresh;
-document.getElementById("exportBtn").onclick = () => {
-  const items = load();
-  if (!items.length) return;
-  const header = "symbol,amount,buyPrice,note,source,createdAt\n";
-  const rows = items.map((i) => [i.symbol, i.amount, i.buyPrice, JSON.stringify(i.note || ""), i.source || "manual", i.createdAt].join(",")).join("\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([header + rows], { type: "text/csv" }));
-  a.download = "portfolio.csv";
-  a.click();
-};
-document.getElementById("clearBtn").onclick = () => {
-  if (load().length && confirm("مسح الكل؟")) { save([]); refresh(); }
-};
-
-(function init() {
-  const bn = loadJSON(BN_STORAGE);
-  if (bn) {
-    document.getElementById("bnKey").value = bn.key || "";
-    document.getElementById("bnSecret").value = bn.secret || "";
-    document.getElementById("bnStatus").textContent = "محفوظ";
-    document.getElementById("bnStatus").className = "api-status ok";
-  }
-  const cb = loadJSON(CB_STORAGE);
-  if (cb) {
-    document.getElementById("cbKey").value = cb.key || "";
-    document.getElementById("cbSecret").value = cb.secret || "";
-    document.getElementById("cbPass").value = cb.passphrase || "";
-    document.getElementById("cbStatus").textContent = "محفوظ";
-    document.getElementById("cbStatus").className = "api-status ok";
-  }
-  applyRefreshTimer();
-  refresh();
-})();
-</script>
-</body>
-</html>
+<div class="toolbar"><strong>الأصول <span id="count"></span></strong>
+<div><span class="status" id="status">—</span>
+<button type="button" class="btn-ghost" id="refreshBtn">تحديث</button>
+<button type="button" class="btn-ghost" id="exportBtn">CSV</button>
+<button type="button" class="btn-ghost btn-danger" id="clearBtn">مسح</button></div></div>
+<div class="list" id="list"></div>
+<div class="empty" id="empty" hidden>لا توجد أصول.</div>
+<p class="disclaimer">تقديري · ليس نصيحة استثمارية</p>
+<footer><a href="https://github.com/Johanne012/crypto-portfolio">GitHub</a></footer>
+</div>
+<script src="app.js"></script>
+</body></html>
